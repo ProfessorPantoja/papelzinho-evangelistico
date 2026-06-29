@@ -1,16 +1,58 @@
-/* print.css — STUB inicial. DONO: Agente "layout". Garantir A4 fiel na impressão. */
+/* print.css — Impressão A4 fiel. DONO: Agente "layout".
+   O que está na tela deve sair igual no papel. */
+
 @media print {
+  /* Folha A4 sem margens do navegador: o respiro fica nos papelzinhos. */
   @page {
     size: A4;
     margin: 0;
   }
+
+  /* Preserva cores/gradientes das artes de fundo na impressão. */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  /* Só a folha deve aparecer: esconde a barra lateral. */
   .sidebar { display: none !important; }
-  .preview { padding: 0 !important; overflow: visible !important; }
-  .sheet-container { gap: 0 !important; }
+
+  /* Área de preview vira o próprio papel, sem padding/scroll. */
+  .preview {
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: visible !important;
+    display: block !important;
+  }
+  .sheet-container {
+    gap: 0 !important;
+    display: block !important;
+  }
+
+  /* Cada folha A4 ocupa uma página física; quebra de página entre folhas. */
   .a4-page {
     box-shadow: none !important;
+    width: 210mm !important;
+    height: 297mm !important;
     page-break-after: always;
     break-after: page;
+    overflow: hidden;
   }
-  body { background: #fff !important; }
+  .a4-page:last-child {
+    page-break-after: auto;
+    break-after: auto;
+  }
+
+  /* Marcas de corte continuam visíveis no papel para guiar o recorte. */
+  .crop-mark,
+  .tract.crop-dashed {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
 }

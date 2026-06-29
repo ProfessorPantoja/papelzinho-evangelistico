@@ -1,48 +1,102 @@
-/* layout.css — STUB inicial. DONO: Agente "layout". */
+/* layout.css — Diagramação A4 na tela (preview). DONO: Agente "layout".
+   Estiliza: a folha A4 com sombra de preview, o grid de papelzinhos,
+   a tipografia (serifada para o versículo) e as marcas de corte. */
+
+/* ---- Folha A4 (preview na tela) ----------------------------------------- */
 .a4-page {
   width: 210mm;
   height: 297mm;
   background: #fff;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 14px rgba(0, 0, 0, 0.25);
   position: relative;
   overflow: hidden;
+  flex: 0 0 auto; /* não encolhe dentro do .sheet-container (flex column) */
 }
+
+/* ---- Grid dos papelzinhos ----------------------------------------------- */
 .tract-grid {
   display: grid;
   align-content: start;
   justify-content: start;
+  /* colunas, gap e padding vêm inline de layout.js (em mm) */
 }
+
+/* ---- Papelzinho ---------------------------------------------------------- */
 .tract {
   position: relative;
   overflow: hidden;
-  border: 1px dashed #cbd5e1; /* guia de corte (some na impressão se o layout quiser) */
+  background: #fff;
 }
+
+/* Marca de corte estilo "linha pontilhada": borda discreta na célula. */
+.tract.crop-dashed {
+  border: 0.3mm dashed #b8c0cc;
+}
+
+/* Estilo "cantos / crop marks": sem borda; os cantinhos são desenhados. */
+.tract.crop-marks {
+  border: none;
+}
+
+/* ---- Fundo (arte do template) ------------------------------------------- */
 .tract-bg {
   position: absolute;
   inset: 0;
   z-index: 0;
+  pointer-events: none;
 }
+
+/* ---- Conteúdo (versículo + referência) ---------------------------------- */
 .tract-content {
   position: relative;
   z-index: 1;
   height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  align-items: center;
   justify-content: center;
   text-align: center;
   padding: 4mm;
   gap: 2mm;
+  overflow: hidden;
 }
+
 .tract-text {
   margin: 0;
-  font-family: Georgia, "Times New Roman", serif;
-  line-height: 1.3;
-  font-size: 9pt;
+  font-family: Georgia, "Times New Roman", "Liberation Serif", serif;
+  line-height: 1.32;
+  /* font-size é definido pelo auto-fit em layout.js; este é só fallback */
+  font-size: 10pt;
   color: #1f2937;
+  /* permite quebra de palavras muito longas sem estourar a largura */
+  overflow-wrap: anywhere;
+  word-break: normal;
+  hyphens: auto;
 }
+
 .tract-ref {
   margin: 0;
+  font-family: Georgia, "Times New Roman", "Liberation Serif", serif;
   font-weight: 700;
   font-size: 8pt;
+  letter-spacing: 0.01em;
   color: #111827;
+  flex: 0 0 auto;
 }
+
+/* ---- Crop marks (cantinhos discretos nos 4 vértices) -------------------- */
+.crop-mark {
+  position: absolute;
+  width: 2.5mm;
+  height: 2.5mm;
+  z-index: 2;
+  pointer-events: none;
+  border-color: #9aa3af;
+  border-style: solid;
+  border-width: 0;
+}
+.crop-mark.crop-tl { top: 0; left: 0; border-top-width: 0.3mm; border-left-width: 0.3mm; }
+.crop-mark.crop-tr { top: 0; right: 0; border-top-width: 0.3mm; border-right-width: 0.3mm; }
+.crop-mark.crop-bl { bottom: 0; left: 0; border-bottom-width: 0.3mm; border-left-width: 0.3mm; }
+.crop-mark.crop-br { bottom: 0; right: 0; border-bottom-width: 0.3mm; border-right-width: 0.3mm; }
