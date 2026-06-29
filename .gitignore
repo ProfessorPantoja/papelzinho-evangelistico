@@ -1,0 +1,7 @@
+# Worktrees temporários de agentes / arquivos de ferramenta
+.claude/
+
+# Sistema
+.DS_Store
+Thumbs.db
+node_modules/
