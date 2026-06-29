@@ -1,11 +1,123 @@
-/* templates.css — STUB inicial. DONO: Agente "templates". */
-.tpl-plain { background: #fff; }
-.tpl-soft-blue {
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+/* templates.css — DONO: Agente "templates".
+ *
+ * Artes de fundo dos papelzinhos. Todas vivem dentro de `.tract-bg`
+ * (position:absolute; inset:0; z-index:0) e ficam ATRÁS do
+ * `.tract-content`. Regras de ouro:
+ *   - cores suaves, texto escuro sempre legível;
+ *   - leves para impressão (pouca tinta, sem fundos saturados);
+ *   - SVG inline esticado (preserveAspectRatio="none") preenche o cartão.
+ */
+
+/* SVG inserido pelos templates ocupa todo o fundo. */
+.tract-bg > svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
 }
+
+/* Garantir impressão fiel das cores de fundo. */
+.tract-bg {
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+/* ============================ 1. Liso ============================ */
+.tpl-plain {
+  background: #ffffff;
+}
+
+/* ========================= 2. Azul suave ========================= */
+.tpl-soft-blue {
+  background: linear-gradient(135deg, #f4f9ff 0%, #e3f0ff 55%, #d4e7fb 100%);
+}
+
+/* ====================== 3. Papel kraft (bege) ==================== */
+.tpl-kraft {
+  background-color: #f3e9d6;
+  background-image:
+    radial-gradient(circle at 20% 25%, rgba(180, 150, 105, 0.10) 0 1px, transparent 1px),
+    radial-gradient(circle at 70% 65%, rgba(160, 130, 90, 0.10) 0 1px, transparent 1px),
+    linear-gradient(135deg, #f6eedd 0%, #efe2c9 100%);
+  background-size: 7mm 7mm, 9mm 9mm, 100% 100%;
+}
+
+/* ===================== 4. Moldura ornamental ==================== */
 .tpl-frame {
-  background: #fff;
-  border: 2mm solid transparent;
-  border-image: linear-gradient(135deg, #93c5fd, #3b82f6) 1;
-  box-shadow: inset 0 0 0 0.5mm #bfdbfe;
+  background: #ffffff;
+  box-shadow:
+    inset 0 0 0 1mm #c9a86a,
+    inset 0 0 0 1.4mm #ffffff,
+    inset 0 0 0 1.9mm #e7d3a6;
+}
+.pz-svg-corners {
+  color: #b08c4e;
+}
+.pz-corner-art path[fill="none"] {
+  stroke: currentColor;
+  stroke-width: 1.2;
+}
+.pz-corner-art circle,
+.pz-corner-art path:not([fill="none"]) {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* ================== 5. Marca d'água de cruz ===================== */
+.tpl-cross {
+  background: linear-gradient(180deg, #ffffff 0%, #f7f9fc 100%);
+}
+.pz-svg-cross {
+  /* a cruz é desenhada em viewBox 0..100; centralizamos sem esticar
+     demais usando preserveAspectRatio="none" — o efeito é uma cruz
+     proporcionalmente larga ao cartão, suave o bastante para ler por cima. */
+}
+.pz-cross-mark rect {
+  fill: #1f2937;
+  opacity: 0.06;
+}
+
+/* ===================== 6. Folhas (orgânico) ==================== */
+.tpl-leaves {
+  background: linear-gradient(160deg, #f6fbf4 0%, #eaf5e7 100%);
+}
+.pz-svg-leaves {
+  color: #6f9c6a;
+  opacity: 0.55;
+}
+.pz-leaf-branch path[fill="none"] {
+  stroke: currentColor;
+  stroke-width: 1.1;
+}
+.pz-leaf path {
+  fill: currentColor;
+}
+
+/* ======================= 7. Raios de luz ======================= */
+.tpl-rays {
+  background:
+    radial-gradient(120% 80% at 50% -10%, #fff7e0 0%, #fffdf6 45%, #ffffff 75%);
+}
+.pz-rays line {
+  stroke: #f6d98a;
+  stroke-width: 0.8;
+  opacity: 0.35;
+}
+
+/* ==================== 8. Pontilhado elegante =================== */
+.tpl-dots {
+  background-color: #ffffff;
+  background-image:
+    radial-gradient(circle, #cfd8e3 0.6px, transparent 0.7px);
+  background-size: 4mm 4mm;
+  background-position: 1mm 1mm;
+  box-shadow: inset 0 0 0 0.6mm #e2e8f0;
+}
+
+/* ===== Modo impressão: aliviar artes para gastar menos tinta ===== */
+@media print {
+  .pz-rays line { opacity: 0.25; }
+  .pz-svg-leaves { opacity: 0.45; }
+  .pz-cross-mark rect { opacity: 0.05; }
 }
