@@ -1,0 +1,11 @@
+/* templates.css — STUB inicial. DONO: Agente "templates". */
+.tpl-plain { background: #fff; }
+.tpl-soft-blue {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+}
+.tpl-frame {
+  background: #fff;
+  border: 2mm solid transparent;
+  border-image: linear-gradient(135deg, #93c5fd, #3b82f6) 1;
+  box-shadow: inset 0 0 0 0.5mm #bfdbfe;
+}

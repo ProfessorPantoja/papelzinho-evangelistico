@@ -1,0 +1,63 @@
+/* main.css — layout geral da aplicação (tela). DONO: integrador. */
+:root {
+  --bg: #f3f4f6;
+  --sidebar-bg: #1f2937;
+  --sidebar-fg: #e5e7eb;
+  --accent: #2563eb;
+  --border: #374151;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  background: var(--bg);
+  display: flex;
+  color: #111827;
+}
+
+.sidebar {
+  width: 340px;
+  min-width: 340px;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-fg);
+  height: 100vh;
+  overflow-y: auto;
+  padding: 20px;
+}
+.sidebar h1 { font-size: 18px; margin: 0 0 4px; }
+.sidebar .subtitle { font-size: 12px; opacity: .7; margin: 0 0 16px; }
+.panel { border-top: 1px solid var(--border); padding: 14px 0; }
+.panel h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .05em; opacity: .8; margin: 0 0 10px; }
+.field { margin-bottom: 12px; }
+.field > label { display: block; font-size: 12px; margin-bottom: 4px; opacity: .9; }
+.radios { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 13px; }
+.radios label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+input[type="text"], input[type="number"], select, textarea {
+  width: 100%;
+  padding: 7px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #111827;
+  color: var(--sidebar-fg);
+  font-size: 13px;
+}
+input[type="range"] { width: 100%; }
+.hint, .footnote { font-size: 11px; opacity: .6; }
+.footnote { margin-top: 12px; }
+
+.search-results { max-height: 180px; overflow-y: auto; margin-top: 6px; }
+.result { padding: 6px; border-radius: 6px; cursor: pointer; font-size: 12px; }
+.result:hover { background: #374151; }
+.result span { opacity: .7; display: block; }
+.picked { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.chip { background: var(--accent); color: #fff; border-radius: 999px; padding: 2px 8px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
+.chip button { background: none; border: none; color: #fff; cursor: pointer; font-size: 14px; line-height: 1; padding: 0; }
+
+.actions { display: flex; flex-direction: column; gap: 8px; margin-top: 16px; }
+button { cursor: pointer; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: #374151; color: #fff; font-size: 14px; }
+button.primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
+button:hover { filter: brightness(1.1); }
+
+.preview { flex: 1; overflow: auto; padding: 24px; display: flex; justify-content: center; align-items: flex-start; }
+.sheet-container { display: flex; flex-direction: column; gap: 24px; }
+.empty { padding: 40px; color: #6b7280; text-align: center; }

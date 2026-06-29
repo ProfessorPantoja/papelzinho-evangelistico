@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Papelzinhos Evangelísticos</title>
+  <link rel="stylesheet" href="src/styles/main.css" />
+  <link rel="stylesheet" href="src/styles/layout.css" />
+  <link rel="stylesheet" href="src/styles/templates.css" />
+  <link rel="stylesheet" href="src/styles/print.css" />
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <h1>📖 Papelzinhos Evangelísticos</h1>
+    <p class="subtitle">Monte uma folha A4 cheia de versículos para imprimir e recortar.</p>
+
+    <section class="panel">
+      <h2>1. Versículos</h2>
+      <div class="field">
+        <label>Como escolher</label>
+        <div class="radios">
+          <label><input type="radio" name="mode" value="random" checked /> Aleatório</label>
+          <label><input type="radio" name="mode" value="manual" /> Escolher</label>
+          <label><input type="radio" name="mode" value="paste" /> Colar texto</label>
+          <label><input type="radio" name="mode" value="generate" /> Gerar por tema</label>
+        </div>
+      </div>
+
+      <div class="field mode-block" data-mode="random generate">
+        <label for="theme">Tema (opcional)</label>
+        <select id="theme"><option value="">Todos os temas</option></select>
+      </div>
+
+      <div class="field mode-block" data-mode="manual">
+        <label for="search">Buscar versículo</label>
+        <input type="text" id="search" placeholder="ex.: João 3:16 ou amor" />
+        <div id="searchResults" class="search-results"></div>
+        <div id="picked" class="picked"></div>
+      </div>
+
+      <div class="field mode-block" data-mode="paste">
+        <label for="pasteText">Cole os versículos (um por linha/parágrafo)</label>
+        <textarea id="pasteText" rows="6" placeholder="João 3:16 - Porque Deus amou o mundo..."></textarea>
+      </div>
+
+      <div class="field mode-block" data-mode="random generate">
+        <label for="count">Quantos papelzinhos</label>
+        <input type="number" id="count" min="1" max="120" value="0" />
+        <small class="hint">0 = preencher a folha automaticamente</small>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>2. Tamanho</h2>
+      <div class="field">
+        <label for="size">Tamanho do papelzinho</label>
+        <select id="size"></select>
+      </div>
+      <div class="field">
+        <label for="fontScale">Tamanho da fonte: <span id="fontScaleVal">100%</span></label>
+        <input type="range" id="fontScale" min="0.6" max="1.6" step="0.05" value="1" />
+      </div>
+    </section>
+
+    <section class="panel">
+      <h2>3. Arte de fundo</h2>
+      <div class="field">
+        <label for="template">Template</label>
+        <select id="template"></select>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button id="btnGenerate" class="primary">Gerar / Atualizar</button>
+      <button id="btnPrint">🖨️ Imprimir / PDF</button>
+    </div>
+    <p class="footnote">Versão: Almeida Corrigida Fiel (ACF)</p>
+  </aside>
+
+  <main class="preview" id="preview">
+    <div id="sheetContainer" class="sheet-container"></div>
+  </main>
+
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>

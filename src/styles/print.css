@@ -1,0 +1,16 @@
+/* print.css — STUB inicial. DONO: Agente "layout". Garantir A4 fiel na impressão. */
+@media print {
+  @page {
+    size: A4;
+    margin: 0;
+  }
+  .sidebar { display: none !important; }
+  .preview { padding: 0 !important; overflow: visible !important; }
+  .sheet-container { gap: 0 !important; }
+  .a4-page {
+    box-shadow: none !important;
+    page-break-after: always;
+    break-after: page;
+  }
+  body { background: #fff !important; }
+}
