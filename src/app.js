@@ -8,7 +8,12 @@ import {
   generateByTheme,
 } from "./selection.js";
 import { TRACT_SIZES, DEFAULT_SIZE_ID, renderSheet } from "./layout.js";
-import { TEMPLATES, DEFAULT_TEMPLATE_ID, getTemplate } from "./templates/index.js";
+import {
+  TEMPLATES,
+  DEFAULT_TEMPLATE_ID,
+  getTemplate,
+  makeImageTemplate,
+} from "./templates/index.js";
 
 const $ = (sel) => document.querySelector(sel);
 const sheetContainer = $("#sheetContainer");
@@ -16,6 +21,7 @@ const sheetContainer = $("#sheetContainer");
 const state = {
   mode: "random",
   picked: [], // Verse[] no modo manual
+  customImage: null, // data URL da imagem de fundo enviada pelo usuário
 };
 
 // --- Popular selects ----------------------------------------------------------
@@ -53,6 +59,22 @@ function fillTemplates() {
     sel.appendChild(o);
   }
   sel.value = DEFAULT_TEMPLATE_ID;
+}
+
+// Garante que exista a opção "Imagem própria" no select de templates.
+function ensureCustomOption() {
+  const sel = $("#template");
+  if (!sel.querySelector('option[value="custom"]')) {
+    const o = document.createElement("option");
+    o.value = "custom";
+    o.textContent = "Imagem própria";
+    sel.appendChild(o);
+  }
+}
+
+function removeCustomOption() {
+  const o = $("#template").querySelector('option[value="custom"]');
+  if (o) o.remove();
 }
 
 // --- Alternar blocos por modo -------------------------------------------------
@@ -141,8 +163,16 @@ function generate() {
     return;
   }
   const sizeId = $("#size").value;
-  const template = getTemplate($("#template").value);
   const fontScale = parseFloat($("#fontScale").value) || 1;
+  // Se o usuário enviou uma imagem e o template "custom" está escolhido,
+  // monta o template de imagem com o clareador; senão usa um template normal.
+  let template;
+  if ($("#template").value === "custom" && state.customImage) {
+    const overlay = parseFloat($("#overlay").value) || 0;
+    template = makeImageTemplate(state.customImage, { overlay });
+  } else {
+    template = getTemplate($("#template").value);
+  }
   try {
     renderSheet(sheetContainer, { verses, sizeId, template, fontScale });
   } catch (e) {
@@ -167,6 +197,41 @@ function init() {
   $("#fontScale").addEventListener("input", (e) => {
     $("#fontScaleVal").textContent = Math.round(e.target.value * 100) + "%";
   });
+
+  // --- Imagem de fundo própria ---
+  $("#bgImage").addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      state.customImage = reader.result;
+      ensureCustomOption();
+      $("#template").value = "custom";
+      $("#bgImageClear").style.display = "";
+      $("#overlayField").style.display = "";
+      generate();
+    };
+    reader.readAsDataURL(file);
+  });
+  $("#bgImageClear").addEventListener("click", () => {
+    state.customImage = null;
+    $("#bgImage").value = "";
+    removeCustomOption();
+    $("#template").value = DEFAULT_TEMPLATE_ID;
+    $("#bgImageClear").style.display = "none";
+    $("#overlayField").style.display = "none";
+    generate();
+  });
+  $("#overlay").addEventListener("input", (e) => {
+    $("#overlayVal").textContent = Math.round(e.target.value * 100) + "%";
+    generate();
+  });
+  $("#template").addEventListener("change", () => {
+    $("#overlayField").style.display =
+      $("#template").value === "custom" && state.customImage ? "" : "none";
+    generate();
+  });
+
   $("#btnGenerate").addEventListener("click", generate);
   $("#btnPrint").addEventListener("click", () => window.print());
 

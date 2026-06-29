@@ -137,6 +137,57 @@ export const TEMPLATES = [
       setBg(bgEl, "tpl-dots");
     },
   },
+
+  {
+    id: "warm",
+    name: "Pêssego suave",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-warm");
+    },
+  },
+
+  {
+    id: "mint",
+    name: "Verde menta",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-mint");
+    },
+  },
+
+  {
+    id: "lavender",
+    name: "Lavanda",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-lavender");
+    },
+  },
+
+  {
+    id: "dove",
+    name: "Pomba (marca d'água)",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-dove");
+      injectSvg(bgEl, svgWrapCentered(dove(), "pz-svg-dove"));
+    },
+  },
+
+  {
+    id: "fish",
+    name: "Peixe (marca d'água)",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-fish");
+      injectSvg(bgEl, svgWrapCentered(fish(), "pz-svg-fish"));
+    },
+  },
+
+  {
+    id: "book",
+    name: "Bíblia aberta",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-book");
+      injectSvg(bgEl, svgWrapCentered(book(), "pz-svg-book"));
+    },
+  },
 ];
 
 /* ----------------------- helpers de SVG ----------------------- */
@@ -173,6 +224,61 @@ function leaf(cx, cy, rot) {
   );
 }
 
+// Envólucro centralizado: mantém a proporção do desenho (símbolos não distorcem).
+function svgWrapCentered(inner, cls) {
+  return (
+    `<svg class="${cls}" xmlns="http://www.w3.org/2000/svg" ` +
+    `viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" ` +
+    `width="100%" height="100%" aria-hidden="true" focusable="false">` +
+    inner +
+    `</svg>`
+  );
+}
+
+// Pomba voando (símbolo do Espírito Santo / paz), centralizada.
+function dove() {
+  return (
+    `<g class="pz-dove" transform="translate(50 50)">` +
+    // asa (varre para cima e para a direita)
+    `<path d="M-6 2 C -8 -16, 6 -28, 30 -30 C 14 -22, 6 -10, 6 2 Z"/>` +
+    // corpo + cabeça + bico
+    `<path d="M-30 8 C -18 2, 0 2, 10 4 C 16 5, 22 4, 26 1 L33 3 L26 6 ` +
+    `C 20 10, 10 10, 4 9 C -6 12, -20 12, -30 8 Z"/>` +
+    // cauda bifurcada (à esquerda)
+    `<path d="M-30 8 L-40 4 L-33 9 L-41 12 L-29 11 Z"/>` +
+    `<circle cx="22" cy="2" r="1.2"/>` +
+    `</g>`
+  );
+}
+
+// Peixe (ichthys), símbolo cristão clássico.
+function fish() {
+  return (
+    `<g class="pz-fish" transform="translate(50 50)">` +
+    `<path d="M-34 0 C -16 -20, 16 -20, 30 0 C 16 20, -16 20, -34 0 Z" fill="none"/>` +
+    `<path d="M26 -10 L40 0 L26 10" fill="none"/>` +
+    `<circle cx="-22" cy="-4" r="1.6"/>` +
+    `</g>`
+  );
+}
+
+// Bíblia aberta (duas páginas) com marcador.
+function book() {
+  return (
+    `<g class="pz-book" transform="translate(50 52)">` +
+    `<path d="M0 -16 C -10 -22, -26 -22, -34 -18 L-34 16 C -26 12, -10 12, 0 18 Z" fill="none"/>` +
+    `<path d="M0 -16 C 10 -22, 26 -22, 34 -18 L34 16 C 26 12, 10 12, 0 18 Z" fill="none"/>` +
+    `<line x1="0" y1="-16" x2="0" y2="18"/>` +
+    `<line x1="-26" y1="-12" x2="-8" y2="-9"/>` +
+    `<line x1="-26" y1="-5" x2="-8" y2="-2"/>` +
+    `<line x1="-26" y1="2" x2="-8" y2="5"/>` +
+    `<line x1="8" y1="-9" x2="26" y2="-12"/>` +
+    `<line x1="8" y1="-2" x2="26" y2="-5"/>` +
+    `<line x1="8" y1="5" x2="26" y2="2"/>` +
+    `</g>`
+  );
+}
+
 // Conjunto de raios em leque a partir de (ox,oy).
 function rays(ox, oy, count) {
   let s = "";
@@ -186,6 +292,30 @@ function rays(ox, oy, count) {
     s += `<line x1="${ox}" y1="${oy}" x2="${x.toFixed(2)}" y2="${y.toFixed(2)}"/>`;
   }
   return `<g class="pz-rays">${s}</g>`;
+}
+
+/**
+ * Cria um template a partir de uma imagem enviada pelo usuário (data URL).
+ * Aplica um "clareador" branco por cima (overlay 0..0.85) para manter o
+ * versículo legível mesmo sobre imagens coloridas/escuras.
+ * @param {string} dataUrl  imagem em data URL (ex.: "data:image/png;base64,...")
+ * @param {{overlay?: number, name?: string}} [opts]
+ */
+export function makeImageTemplate(dataUrl, opts = {}) {
+  const overlay = Math.min(0.85, Math.max(0, opts.overlay ?? 0.35));
+  const v = overlay.toFixed(2);
+  return {
+    id: "custom",
+    name: opts.name || "Imagem própria",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-custom");
+      bgEl.style.backgroundImage =
+        `linear-gradient(rgba(255,255,255,${v}), rgba(255,255,255,${v})), url("${dataUrl}")`;
+      bgEl.style.backgroundSize = "cover";
+      bgEl.style.backgroundPosition = "center";
+      bgEl.style.backgroundRepeat = "no-repeat";
+    },
+  };
 }
 
 /**
