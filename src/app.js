@@ -7,7 +7,12 @@ import {
   parsePastedText,
   generateByTheme,
 } from "./selection.js";
-import { TRACT_SIZES, DEFAULT_SIZE_ID, renderSheet } from "./layout.js";
+import {
+  TRACT_SIZES,
+  DEFAULT_SIZE_ID,
+  renderSheet,
+  capacityPerPage,
+} from "./layout.js";
 import {
   TEMPLATES,
   DEFAULT_TEMPLATE_ID,
@@ -105,6 +110,7 @@ function renderSearch() {
     div.onclick = () => {
       if (!state.picked.find((p) => p.id === v.id)) state.picked.push(v);
       renderPicked();
+      generate();
     };
     box.appendChild(div);
   }
@@ -122,6 +128,7 @@ function renderPicked() {
     x.onclick = () => {
       state.picked.splice(i, 1);
       renderPicked();
+      generate();
     };
     chip.appendChild(x);
     box.appendChild(chip);
@@ -132,8 +139,8 @@ function renderPicked() {
 function collectVerses() {
   const theme = $("#theme").value || undefined;
   const count = parseInt($("#count").value, 10) || 0; // 0 = auto
-  // Quando "auto", pedimos bastante; o layout corta o que couber na folha.
-  const wanted = count > 0 ? count : 60;
+  // Quando "auto" (0), preenche exatamente UMA folha A4 do tamanho escolhido.
+  const wanted = count > 0 ? count : capacityPerPage($("#size").value);
 
   try {
     switch (state.mode) {
@@ -191,12 +198,18 @@ function init() {
   document.querySelectorAll('input[name="mode"]').forEach((r) =>
     r.addEventListener("change", () => {
       applyModeVisibility();
+      generate();
     })
   );
   $("#search").addEventListener("input", renderSearch);
   $("#fontScale").addEventListener("input", (e) => {
     $("#fontScaleVal").textContent = Math.round(e.target.value * 100) + "%";
+    generate();
   });
+  // Mudar tamanho, tema ou quantidade reflete na hora no preview.
+  $("#size").addEventListener("change", generate);
+  $("#theme").addEventListener("change", generate);
+  $("#count").addEventListener("input", generate);
 
   // --- Imagem de fundo própria ---
   $("#bgImage").addEventListener("change", (e) => {

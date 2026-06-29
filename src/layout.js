@@ -52,6 +52,11 @@ function computeGrid(size) {
   return { cols, rows, perPage: cols * rows };
 }
 
+/** Quantos papelzinhos cabem em UMA folha A4 para o tamanho dado (id). */
+export function capacityPerPage(sizeId) {
+  return computeGrid(resolveSize(sizeId)).perPage;
+}
+
 /** Cria a estrutura DOM de um papelzinho (sem ainda medir/ajustar fonte). */
 function buildTract(verse, size, fontScale, template) {
   const tract = document.createElement("div");
