@@ -253,8 +253,9 @@ function generate() {
   } else {
     template = getTemplate($("#template").value);
   }
+  const footer = $("#footerText").value.trim();
   try {
-    renderSheet(sheetContainer, { verses, sizeId, template, fontScale });
+    renderSheet(sheetContainer, { verses, sizeId, template, fontScale, footer });
   } catch (e) {
     console.error("Erro no layout:", e);
     sheetContainer.innerHTML = `<div class="empty">Erro ao renderizar a folha: ${e.message}</div>`;
@@ -287,6 +288,7 @@ function init() {
   $("#pasteText").addEventListener("input", debounce(generate, 400));
   $("#sameVerse").addEventListener("change", generate);
   $("#fillPage").addEventListener("change", generate);
+  $("#footerText").addEventListener("input", debounce(generate, 400));
 
   // --- Imagem de fundo própria ---
   $("#bgImage").addEventListener("change", (e) => {

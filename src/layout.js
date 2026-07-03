@@ -58,7 +58,7 @@ export function capacityPerPage(sizeId) {
 }
 
 /** Cria a estrutura DOM de um papelzinho (sem ainda medir/ajustar fonte). */
-function buildTract(verse, size, fontScale, template) {
+function buildTract(verse, size, fontScale, template, footer) {
   const tract = document.createElement("div");
   tract.className = "tract crop-" + CROP_STYLE;
   tract.style.width = `${size.wMm}mm`;
@@ -82,6 +82,14 @@ function buildTract(verse, size, fontScale, template) {
 
   content.appendChild(text);
   content.appendChild(ref);
+
+  // Rodapé opcional (igreja/contato) na base do papelzinho.
+  if (footer) {
+    const foot = document.createElement("p");
+    foot.className = "tract-footer";
+    foot.textContent = footer;
+    content.appendChild(foot);
+  }
 
   tract.appendChild(bg);
   tract.appendChild(content);
@@ -145,9 +153,9 @@ function autofitTract(tract) {
 /**
  * Renderiza dentro de containerEl uma ou mais páginas A4 com os papelzinhos.
  * @param {HTMLElement} containerEl
- * @param {{verses: Array, sizeId: string, template: object, fontScale?: number}} opts
+ * @param {{verses: Array, sizeId: string, template: object, fontScale?: number, footer?: string}} opts
  */
-export function renderSheet(containerEl, { verses, sizeId, template, fontScale = 1 } = {}) {
+export function renderSheet(containerEl, { verses, sizeId, template, fontScale = 1, footer = "" } = {}) {
   if (!containerEl) return;
   containerEl.innerHTML = "";
 
@@ -175,7 +183,7 @@ export function renderSheet(containerEl, { verses, sizeId, template, fontScale =
     grid.style.padding = `${A4.marginMm}mm`;
 
     for (let i = 0; i < perPage && idx < list.length; i++, idx++) {
-      const tract = buildTract(list[idx], size, fontScale, template);
+      const tract = buildTract(list[idx], size, fontScale, template, footer);
       grid.appendChild(tract);
       tracts.push(tract);
     }

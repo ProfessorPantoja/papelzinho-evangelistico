@@ -55,8 +55,9 @@ export const DEFAULT_SIZE_ID = "...";
  * - Para CADA papelzinho cria a estrutura e chama template.apply(innerEl, {sizeId}).
  * - Aplica auto-ajuste de fonte para versículos longos caberem (fontScale = multiplicador do usuário).
  * - Desenha marcas de corte entre os papelzinhos.
+ * - footer (opcional): linha de rodapé (igreja/contato) na base de cada papelzinho.
  */
-export function renderSheet(containerEl, { verses, sizeId, template, fontScale = 1 });
+export function renderSheet(containerEl, { verses, sizeId, template, fontScale = 1, footer = "" });
 ```
 Cada papelzinho deve conter o texto (`.tract-text`) e a referência (`.tract-ref`), e um
 contêiner de fundo (`.tract-bg`) onde o template aplica a arte. `print.css` garante A4 fiel
