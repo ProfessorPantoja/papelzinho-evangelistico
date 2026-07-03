@@ -188,6 +188,110 @@ export const TEMPLATES = [
       injectSvg(bgEl, svgWrapCentered(book(), "pz-svg-book"));
     },
   },
+
+  {
+    id: "aurora",
+    name: "Aurora (pastel)",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-aurora");
+    },
+  },
+
+  {
+    id: "waves",
+    name: "Ondas do mar",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-waves");
+      injectSvg(
+        bgEl,
+        svgWrap(
+          `<g class="pz-waves">` +
+            `<path class="w1" d="M0 84 C 12 80, 22 88, 34 86 C 48 84, 58 78, 70 80 C 82 82, 92 88, 100 85 L100 100 L0 100 Z"/>` +
+            `<path class="w2" d="M0 91 C 14 87, 26 94, 40 92 C 54 90, 66 86, 78 89 C 88 91, 95 94, 100 92 L100 100 L0 100 Z"/>` +
+            `</g>`,
+          "pz-svg-waves"
+        )
+      );
+    },
+  },
+
+  {
+    id: "wheat",
+    name: "Trigo (colheita)",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-wheat");
+      injectSvg(
+        bgEl,
+        svgWrap(
+          `<g class="pz-wheat">` +
+            wheatStalk(88, 8) +
+            wheatStalk(95, -6) +
+            `</g>`,
+          "pz-svg-wheat"
+        )
+      );
+    },
+  },
+
+  {
+    id: "stars",
+    name: "Céu estrelado (suave)",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-stars");
+      injectSvg(bgEl, svgWrap(stars(), "pz-svg-stars"));
+    },
+  },
+
+  {
+    id: "heart",
+    name: "Coração (marca d'água)",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-heart");
+      injectSvg(bgEl, svgWrapCentered(heart(), "pz-svg-heart"));
+    },
+  },
+
+  {
+    id: "anchor",
+    name: "Âncora da esperança",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-anchor");
+      injectSvg(bgEl, svgWrapCentered(anchor(), "pz-svg-anchor"));
+    },
+  },
+
+  {
+    id: "vine",
+    name: "Videira",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-vine");
+      injectSvg(
+        bgEl,
+        svgWrap(
+          `<g class="pz-vine">` +
+            `<path class="pz-vine-stem" d="M-2 8 C 20 4, 40 12, 60 8 C 78 5, 92 9, 102 6" fill="none"/>` +
+            leaf(12, 7, -30) +
+            leaf(30, 9, 20) +
+            leaf(50, 8, -25) +
+            leaf(70, 7, 15) +
+            leaf(88, 8, -20) +
+            grapes(22, 13) +
+            grapes(62, 12) +
+            `</g>`,
+          "pz-svg-vine"
+        )
+      );
+    },
+  },
+
+  {
+    id: "rainbow",
+    name: "Arco-íris (promessa)",
+    apply(bgEl) {
+      setBg(bgEl, "tpl-rainbow");
+      injectSvg(bgEl, svgWrap(rainbowArcs(), "pz-svg-rainbow"));
+    },
+  },
 ];
 
 /* ----------------------- helpers de SVG ----------------------- */
@@ -277,6 +381,83 @@ function book() {
     `<line x1="8" y1="5" x2="26" y2="2"/>` +
     `</g>`
   );
+}
+
+// Espiga de trigo: haste vertical em x (base no rodapé) com grãos alternados.
+function wheatStalk(x, rot) {
+  let grains = "";
+  for (let i = 0; i < 6; i++) {
+    const y = 78 - i * 7;
+    grains +=
+      `<ellipse cx="${x - 2.2}" cy="${y}" rx="2.6" ry="1.4" ` +
+      `transform="rotate(-28 ${x - 2.2} ${y})"/>` +
+      `<ellipse cx="${x + 2.2}" cy="${y - 3.5}" rx="2.6" ry="1.4" ` +
+      `transform="rotate(28 ${x + 2.2} ${y - 3.5})"/>`;
+  }
+  return (
+    `<g transform="rotate(${rot} ${x} 100)">` +
+    `<path d="M${x} 100 L${x} 34" fill="none"/>` +
+    grains +
+    `</g>`
+  );
+}
+
+// Estrelinhas discretas no alto do cartão (pontos + uma estrela de 4 pontas).
+function stars() {
+  const pts = [
+    [12, 12, 1.0], [30, 7, 0.7], [48, 14, 1.1], [66, 6, 0.8], [84, 12, 1.0],
+    [22, 22, 0.6], [58, 24, 0.7], [76, 20, 0.6], [40, 26, 0.5], [90, 26, 0.8],
+  ];
+  let s = pts.map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}"/>`).join("");
+  // estrela maior de 4 pontas
+  s += `<path d="M50 8 L52 14 L58 16 L52 18 L50 24 L48 18 L42 16 L48 14 Z"/>`;
+  return `<g class="pz-stars">${s}</g>`;
+}
+
+// Coração centralizado (marca d'água).
+function heart() {
+  return (
+    `<g class="pz-heart" transform="translate(50 48)">` +
+    `<path d="M0 -12 C -5 -24, -22 -22, -22 -8 C -22 4, -9 12, 0 20 ` +
+    `C 9 12, 22 4, 22 -8 C 22 -22, 5 -24, 0 -12 Z"/>` +
+    `</g>`
+  );
+}
+
+// Âncora (Hebreus 6:19 — “âncora da alma”).
+function anchor() {
+  return (
+    `<g class="pz-anchor" transform="translate(50 50)">` +
+    `<circle cx="0" cy="-24" r="4.5" fill="none"/>` +
+    `<line x1="0" y1="-19.5" x2="0" y2="13"/>` +
+    `<line x1="-11" y1="-9" x2="11" y2="-9"/>` +
+    `<path d="M-18 2 C -15 14, 15 14, 18 2" fill="none"/>` +
+    `<path d="M-18 2 L-23 -1 L-15 -3 Z"/>` +
+    `<path d="M18 2 L23 -1 L15 -3 Z"/>` +
+    `</g>`
+  );
+}
+
+// Cachinho de uvas (3 bagas) para a videira.
+function grapes(cx, cy) {
+  return (
+    `<g class="pz-grapes">` +
+    `<circle cx="${cx}" cy="${cy}" r="1.6"/>` +
+    `<circle cx="${cx + 2.8}" cy="${cy + 1}" r="1.6"/>` +
+    `<circle cx="${cx + 1.2}" cy="${cy + 3.2}" r="1.6"/>` +
+    `</g>`
+  );
+}
+
+// Arcos concêntricos pastéis subindo do rodapé (arco-íris da promessa).
+function rainbowArcs() {
+  const radii = [58, 50, 42, 34, 26];
+  let s = "";
+  radii.forEach((r, i) => {
+    s += `<path class="pz-rb pz-rb${i + 1}" fill="none" ` +
+      `d="M${50 - r} 100 A ${r} ${r} 0 0 1 ${50 + r} 100"/>`;
+  });
+  return `<g class="pz-rainbow">${s}</g>`;
 }
 
 // Conjunto de raios em leque a partir de (ox,oy).
