@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Relatório de Melhorias — Papelzinhos Evangelísticos (02/07/2026)</title>
+<style>
+  :root {
+    --ink: #1f2937; --muted: #6b7280; --line: #e5e7eb;
+    --blue: #2563eb; --green: #059669; --amber: #d97706; --red: #dc2626; --violet: #7c3aed;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink); background: #f6f7f9; margin: 0; line-height: 1.55;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 32px 20px 64px; }
+  header.hero {
+    background: linear-gradient(135deg, #111827 0%, #1e3a8a 100%);
+    color: #fff; border-radius: 14px; padding: 28px 26px; margin-bottom: 28px;
+  }
+  header.hero h1 { margin: 0 0 6px; font-size: 24px; }
+  header.hero p { margin: 0; opacity: 0.85; font-size: 14px; }
+  h2 {
+    font-size: 17px; margin: 34px 0 12px; padding-bottom: 6px;
+    border-bottom: 2px solid var(--line);
+  }
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 12px;
+    padding: 16px 18px; margin-bottom: 10px;
+  }
+  .card h3 { margin: 0 0 4px; font-size: 14.5px; display: flex; align-items: center; gap: 8px; }
+  .card p { margin: 4px 0 0; font-size: 13.5px; color: #374151; }
+  .tag {
+    display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+    padding: 2px 9px; border-radius: 999px; text-transform: uppercase; color: #fff;
+  }
+  .tag.fix { background: var(--red); }
+  .tag.feat { background: var(--green); }
+  .tag.design { background: var(--violet); }
+  .tag.data { background: var(--blue); }
+  .tag.docs { background: var(--muted); }
+  code {
+    background: #eef1f5; border-radius: 5px; padding: 1px 6px;
+    font-size: 12.5px; font-family: "SF Mono", Consolas, "Liberation Mono", monospace;
+  }
+  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid var(--line); font-size: 13.5px; }
+  th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); }
+  th { background: #f3f4f6; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: #4b5563; }
+  tr:last-child td { border-bottom: none; }
+  .prio { font-weight: 700; }
+  .prio.alta { color: var(--red); }
+  .prio.media { color: var(--amber); }
+  .prio.baixa { color: var(--muted); }
+  .note {
+    background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px;
+    padding: 14px 16px; font-size: 13.5px; margin: 14px 0;
+  }
+  .ok { color: var(--green); font-weight: 600; }
+  footer { margin-top: 40px; font-size: 12px; color: var(--muted); text-align: center; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="hero">
+    <h1>📖 Papelzinhos Evangelísticos — Relatório de Melhorias</h1>
+    <p>Revisão geral do projeto: código, design e novas funcionalidades · 02/07/2026 · 9 commits atômicos</p>
+  </header>
+
+  <h2>O que foi feito (por etapa / commit)</h2>
+
+  <div class="card">
+    <h3><span class="tag fix">Correção</span> Usabilidade e robustez do código</h3>
+    <p>Campo “Quantos papelzinhos” agora aceita <code>0</code> (= automático) sem conflitar com o
+    <code>min</code> do input; o modo “Colar texto” atualiza o preview enquanto você digita
+    (debounce); e a remoção de acentos na busca passou a usar escapes Unicode
+    (<code>̀-ͯ</code>) em vez de caracteres invisíveis no código.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag feat">Novo</span> Barra de informações + zoom do preview</h3>
+    <p>Acima da folha agora aparece: nº de papelzinhos, medida escolhida, capacidade por folha e
+    total de folhas A4. Controles de zoom (−/+/percentual) e botão <strong>Ajustar</strong> que
+    encaixa a folha na largura da tela. A impressão ignora o zoom.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag feat">Novo</span> Modos de preenchimento da folha</h3>
+    <p><strong>“Mesmo versículo na folha toda”</strong> (modos aleatório/tema): sorteia um único
+    versículo e repete em todos os papelzinhos — ideal para campanhas. <strong>“Completar a folha
+    repetindo”</strong> (modos manual/colar): repete a seleção até fechar a última folha, sem
+    espaços vazios.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag feat">Novo</span> Rodapé personalizado (igreja/contato)</h3>
+    <p>Nova seção “4. Personalizar”: uma linha opcional (até 80 caracteres) impressa em letra
+    pequena na base de cada papelzinho, com filete separador — para nome da igreja, WhatsApp etc.
+    O auto-ajuste de fonte leva o rodapé em conta.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag feat">Novo</span> Preferências salvas no navegador</h3>
+    <p>Modo, tema, quantidade, tamanho, fonte, template, clareador, rodapé, texto colado e
+    versículos escolhidos são gravados no <code>localStorage</code> e restaurados ao reabrir a
+    página. A imagem própria não é persistida (pode exceder a cota do navegador).</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag design">Design</span> 8 novas artes de fundo (total: 22)</h3>
+    <p>Aurora (pastel), Ondas do mar, Trigo (colheita), Céu estrelado, Coração, Âncora da
+    esperança, Videira e Arco-íris (promessa). Tudo em CSS/SVG inline — sem imagens externas,
+    fundos suaves, com redução extra de opacidade na impressão para economizar tinta.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag data">Dados</span> Banco de versículos: 81 → 112 (+31)</h3>
+    <p>Novos blocos: coragem/confiança, palavra/verdade, oração/busca, convite/vida e nova
+    vida/alegria. Três temas novos: <strong>coragem</strong>, <strong>oração</strong> e
+    <strong>alegria</strong> (17 no total). Validado por script: ids únicos e campos completos.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag design">Design</span> Redesign da interface</h3>
+    <p>Paleta refinada, painéis em cartões, seletores de modo como botões segmentados, focus rings
+    de acessibilidade, sliders estilizados, fundo pontilhado na área de preview, favicon 📖 e
+    layout responsivo (barra lateral vira bloco superior em telas estreitas). O
+    <code>layout.css</code> agora define o próprio <code>box-sizing</code> — não depende mais do
+    reset global (fragilidade encontrada e corrigida durante os testes).</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="tag docs">Docs</span> README, CONTRACTS e este relatório</h3>
+    <p>README reescrito com as funcionalidades atuais e instrução de servidor local (ES modules);
+    <code>CONTRACTS.md</code> atualizado com a opção <code>footer</code> do
+    <code>renderSheet</code>.</p>
+  </div>
+
+  <h2>Validação</h2>
+  <div class="card">
+    <p><span class="ok">✔</span> Sintaxe de todos os módulos JS checada com <code>node --check</code> a cada commit.</p>
+    <p><span class="ok">✔</span> App exercitado em Chromium headless via servidor local: folha renderiza 9 papelzinhos
+    (tamanho médio), barra de info correta, sem erros de console.</p>
+    <p><span class="ok">✔</span> As 8 novas artes verificadas visualmente em screenshot (com auto-fit e rodapé ativos,
+    no menor tamanho de papelzinho — pior caso de espaço).</p>
+    <p><span class="ok">✔</span> Banco de versículos validado por script (ids únicos, campos obrigatórios).</p>
+  </div>
+
+  <div class="note">
+    <strong>⚠️ Atenção — texto bíblico:</strong> os 31 versículos novos foram adicionados na
+    redação ACF de memória do modelo. Recomendo <strong>conferir a redação exata</strong> com uma
+    ACF impressa/oficial antes de distribuir em grande volume (especialmente Isaías 43:1,
+    Lamentações 3:22-23 e Gálatas 5:22).
+  </div>
+
+  <h2>Backlog — próximos passos sugeridos</h2>
+  <table>
+    <thead><tr><th>Prioridade</th><th>Item</th><th>Observação</th></tr></thead>
+    <tbody>
+      <tr><td class="prio alta">Alta</td><td>Conferência humana dos versículos novos</td><td>Ver aviso acima; é rápido com uma ACF ao lado.</td></tr>
+      <tr><td class="prio alta">Alta</td><td>Publicar no GitHub Pages</td><td>O app é estático; basta ativar Pages na branch para usar sem servidor local.</td></tr>
+      <tr><td class="prio media">Média</td><td>QR Code opcional no papelzinho</td><td>Link da igreja/WhatsApp. Exige embutir um gerador de QR em JS puro (sem CDN, o app é offline).</td></tr>
+      <tr><td class="prio media">Média</td><td>Tamanho de papelzinho customizado</td><td>Campos de largura×altura em mm além dos 5 presets.</td></tr>
+      <tr><td class="prio media">Média</td><td>Persistir a imagem própria</td><td>Usar IndexedDB (sem o limite prático do localStorage).</td></tr>
+      <tr><td class="prio baixa">Baixa</td><td>Frente e verso</td><td>Versículo na frente, contato/plano de salvação no verso (imprimir páginas pares/ímpares).</td></tr>
+      <tr><td class="prio baixa">Baixa</td><td>Exportar PDF direto (sem Ctrl+P)</td><td>Biblioteca embutida tipo jsPDF; avaliar peso vs. benefício.</td></tr>
+      <tr><td class="prio baixa">Baixa</td><td>Outras versões da Bíblia</td><td>Arquitetura já separa dados de UI; seria um segundo arquivo de dados.</td></tr>
+    </tbody>
+  </table>
+
+  <footer>Gerado por Claude Code em 02/07/2026 · Projeto: papelzinho-evangelistico · Branch: claude/evangelical-tract-renderer-l3r3dq</footer>
+</div>
+</body>
+</html>
