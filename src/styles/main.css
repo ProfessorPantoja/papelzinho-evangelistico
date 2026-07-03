@@ -32,6 +32,8 @@ body {
 .field > label { display: block; font-size: 12px; margin-bottom: 4px; opacity: .9; }
 .radios { display: flex; flex-wrap: wrap; gap: 6px 12px; font-size: 13px; }
 .radios label { display: inline-flex; align-items: center; gap: 4px; cursor: pointer; }
+.check { display: inline-flex !important; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; }
+.check input { accent-color: var(--accent); }
 input[type="text"], input[type="number"], select, textarea {
   width: 100%;
   padding: 7px 8px;

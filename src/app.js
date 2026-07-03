@@ -149,22 +149,47 @@ function renderPicked() {
 }
 
 // --- Coletar versículos conforme o modo --------------------------------------
+
+/** Repete ciclicamente a lista até fechar a última folha A4 (múltiplo de perPage). */
+function cycleToFillPage(list) {
+  if (!list.length) return list;
+  const perPage = capacityPerPage($("#size").value);
+  const target = Math.ceil(list.length / perPage) * perPage;
+  const out = [];
+  for (let i = 0; i < target; i++) out.push(list[i % list.length]);
+  return out;
+}
+
 function collectVerses() {
   const theme = $("#theme").value || undefined;
   const count = parseInt($("#count").value, 10) || 0; // 0 = auto
   // Quando "auto" (0), preenche exatamente UMA folha A4 do tamanho escolhido.
   const wanted = count > 0 ? count : capacityPerPage($("#size").value);
+  const sameVerse = $("#sameVerse").checked;
+  const fillPage = $("#fillPage").checked;
 
   try {
     switch (state.mode) {
       case "random":
-        return getRandomVerses(wanted, theme ? { themes: [theme] } : {});
-      case "manual":
-        return state.picked.slice();
-      case "paste":
-        return parsePastedText($("#pasteText").value);
-      case "generate":
-        return generateByTheme(theme || "", wanted);
+      case "generate": {
+        const opts = theme ? { themes: [theme] } : {};
+        if (sameVerse) {
+          // Um único versículo repetido em todos os papelzinhos.
+          const one = getRandomVerses(1, opts);
+          return one.length ? new Array(wanted).fill(one[0]) : [];
+        }
+        return state.mode === "generate"
+          ? generateByTheme(theme || "", wanted)
+          : getRandomVerses(wanted, opts);
+      }
+      case "manual": {
+        const picked = state.picked.slice();
+        return fillPage ? cycleToFillPage(picked) : picked;
+      }
+      case "paste": {
+        const pasted = parsePastedText($("#pasteText").value);
+        return fillPage ? cycleToFillPage(pasted) : pasted;
+      }
       default:
         return [];
     }
@@ -260,6 +285,8 @@ function init() {
   $("#count").addEventListener("input", debounce(generate, 300));
   // Colar/editar texto atualiza o preview ao vivo (com debounce).
   $("#pasteText").addEventListener("input", debounce(generate, 400));
+  $("#sameVerse").addEventListener("change", generate);
+  $("#fillPage").addEventListener("change", generate);
 
   // --- Imagem de fundo própria ---
   $("#bgImage").addEventListener("change", (e) => {
