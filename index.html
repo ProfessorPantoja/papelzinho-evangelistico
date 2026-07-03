@@ -87,7 +87,18 @@
   </aside>
 
   <main class="preview" id="preview">
-    <div id="sheetContainer" class="sheet-container"></div>
+    <div class="preview-toolbar">
+      <span id="sheetInfo" class="sheet-info"></span>
+      <div class="zoom-controls">
+        <button id="zoomOut" type="button" title="Diminuir zoom" aria-label="Diminuir zoom">−</button>
+        <span id="zoomVal" class="zoom-val">100%</span>
+        <button id="zoomIn" type="button" title="Aumentar zoom" aria-label="Aumentar zoom">+</button>
+        <button id="zoomFit" type="button" title="Ajustar à largura da tela">Ajustar</button>
+      </div>
+    </div>
+    <div class="preview-scroll" id="previewScroll">
+      <div id="sheetContainer" class="sheet-container"></div>
+    </div>
   </main>
 
   <script type="module" src="src/app.js"></script>

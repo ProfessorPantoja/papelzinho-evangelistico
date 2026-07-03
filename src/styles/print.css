@@ -20,19 +20,23 @@
     background: #fff !important;
   }
 
-  /* Só a folha deve aparecer: esconde a barra lateral. */
+  /* Só a folha deve aparecer: esconde a barra lateral e a barra de zoom. */
   .sidebar { display: none !important; }
+  .preview-toolbar { display: none !important; }
 
   /* Área de preview vira o próprio papel, sem padding/scroll. */
-  .preview {
+  .preview,
+  .preview-scroll {
     padding: 0 !important;
     margin: 0 !important;
     overflow: visible !important;
     display: block !important;
+    height: auto !important;
   }
   .sheet-container {
     gap: 0 !important;
     display: block !important;
+    zoom: 1 !important; /* zoom do preview não afeta o papel */
   }
 
   /* Cada folha A4 ocupa uma página física; quebra de página entre folhas. */

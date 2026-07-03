@@ -36,7 +36,11 @@ const state = {
   mode: "random",
   picked: [], // Verse[] no modo manual
   customImage: null, // data URL da imagem de fundo enviada pelo usuário
+  zoom: 1, // fator de zoom do preview (1 = 100%)
 };
+
+// Largura de uma folha A4 em px CSS (210mm a 96dpi ≈ 793.7px).
+const A4_WIDTH_PX = 794;
 
 // --- Popular selects ----------------------------------------------------------
 function fillThemes() {
@@ -170,9 +174,44 @@ function collectVerses() {
   }
 }
 
+// --- Zoom do preview ----------------------------------------------------------
+function applyZoom(z) {
+  state.zoom = Math.min(3, Math.max(0.2, z));
+  // `zoom` (e não transform) para o scroll acompanhar o tamanho renderizado.
+  sheetContainer.style.zoom = state.zoom;
+  $("#zoomVal").textContent = Math.round(state.zoom * 100) + "%";
+}
+
+function zoomToFit() {
+  const scroll = $("#previewScroll");
+  if (!scroll) return;
+  const available = scroll.clientWidth - 48; // desconta o padding do preview
+  applyZoom(available / A4_WIDTH_PX);
+}
+
+// --- Barra de informações da folha ---------------------------------------------
+function updateSheetInfo(versesCount) {
+  const info = $("#sheetInfo");
+  if (!info) return;
+  const sizeId = $("#size").value;
+  const size = TRACT_SIZES.find((s) => s.id === sizeId);
+  const perPage = capacityPerPage(sizeId);
+  if (!versesCount) {
+    info.textContent = "";
+    return;
+  }
+  const pages = Math.max(1, Math.ceil(versesCount / perPage));
+  const plural = (n, s, p) => (n === 1 ? s : p);
+  info.textContent =
+    `${versesCount} ${plural(versesCount, "papelzinho", "papelzinhos")} · ` +
+    `${size ? `${size.wMm}×${size.hMm} mm` : ""} · ` +
+    `${perPage} por folha · ${pages} ${plural(pages, "folha A4", "folhas A4")}`;
+}
+
 // --- Render principal ---------------------------------------------------------
 function generate() {
   const verses = collectVerses();
+  updateSheetInfo(verses.length);
   if (!verses.length) {
     sheetContainer.innerHTML =
       '<div class="empty">Nenhum versículo selecionado. Escolha uma opção e clique em "Gerar".</div>';
@@ -259,7 +298,13 @@ function init() {
   $("#btnGenerate").addEventListener("click", generate);
   $("#btnPrint").addEventListener("click", () => window.print());
 
+  // --- Zoom do preview ---
+  $("#zoomIn").addEventListener("click", () => applyZoom(state.zoom + 0.1));
+  $("#zoomOut").addEventListener("click", () => applyZoom(state.zoom - 0.1));
+  $("#zoomFit").addEventListener("click", zoomToFit);
+
   generate();
+  zoomToFit();
 }
 
 document.addEventListener("DOMContentLoaded", init);

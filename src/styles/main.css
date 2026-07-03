@@ -58,6 +58,20 @@ button { cursor: pointer; padding: 10px; border-radius: 6px; border: 1px solid v
 button.primary { background: var(--accent); border-color: var(--accent); font-weight: 600; }
 button:hover { filter: brightness(1.1); }
 
-.preview { flex: 1; overflow: auto; padding: 24px; display: flex; justify-content: center; align-items: flex-start; }
+.preview { flex: 1; display: flex; flex-direction: column; min-width: 0; height: 100vh; }
+.preview-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 16px; background: #fff; border-bottom: 1px solid #e5e7eb;
+  font-size: 13px; color: #374151; flex: 0 0 auto;
+}
+.sheet-info { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.zoom-controls { display: flex; align-items: center; gap: 6px; }
+.zoom-controls button {
+  padding: 4px 10px; font-size: 13px; background: #f3f4f6; color: #111827;
+  border: 1px solid #d1d5db; border-radius: 6px;
+}
+.zoom-controls button:hover { background: #e5e7eb; filter: none; }
+.zoom-val { min-width: 44px; text-align: center; font-variant-numeric: tabular-nums; }
+.preview-scroll { flex: 1; overflow: auto; padding: 24px; display: flex; justify-content: center; align-items: flex-start; }
 .sheet-container { display: flex; flex-direction: column; gap: 24px; }
 .empty { padding: 40px; color: #6b7280; text-align: center; }
