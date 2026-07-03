@@ -23,6 +23,15 @@ import {
 const $ = (sel) => document.querySelector(sel);
 const sheetContainer = $("#sheetContainer");
 
+/** Debounce simples para entradas de texto (evita re-render a cada tecla). */
+function debounce(fn, ms = 250) {
+  let t;
+  return (...args) => {
+    clearTimeout(t);
+    t = setTimeout(() => fn(...args), ms);
+  };
+}
+
 const state = {
   mode: "random",
   picked: [], // Verse[] no modo manual
@@ -209,7 +218,9 @@ function init() {
   // Mudar tamanho, tema ou quantidade reflete na hora no preview.
   $("#size").addEventListener("change", generate);
   $("#theme").addEventListener("change", generate);
-  $("#count").addEventListener("input", generate);
+  $("#count").addEventListener("input", debounce(generate, 300));
+  // Colar/editar texto atualiza o preview ao vivo (com debounce).
+  $("#pasteText").addEventListener("input", debounce(generate, 400));
 
   // --- Imagem de fundo própria ---
   $("#bgImage").addEventListener("change", (e) => {
