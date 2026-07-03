@@ -100,6 +100,48 @@ export const VERSES = [
   { id: "cl1-14", ref: "Colossenses 1:14", themes: ["perdão", "salvação"], text: "Em quem temos a redenção pelo seu sangue, a saber, a remissão dos pecados." },
   { id: "ef1-7", ref: "Efésios 1:7", themes: ["graça", "perdão"], text: "Em quem temos a redenção pelo seu sangue, a remissão das ofensas, segundo as riquezas da sua graça." },
   { id: "gl3-13", ref: "Gálatas 3:13", themes: ["salvação", "graça"], text: "Cristo nos resgatou da maldição da lei, fazendo-se maldição por nós; porque está escrito: Maldito todo aquele que for pendurado no madeiro." },
+
+  // ——— Coragem / Confiança ———
+  { id: "js1-9", ref: "Josué 1:9", themes: ["coragem", "consolo"], text: "Não to mandei eu? Esforça-te, e tem bom ânimo; não temas, nem te espantes; porque o Senhor teu Deus é contigo, por onde quer que andares." },
+  { id: "dt31-6", ref: "Deuteronômio 31:6", themes: ["coragem", "consolo"], text: "Esforçai-vos, e animai-vos; não temais, nem vos espanteis diante deles; porque o Senhor teu Deus é o que vai contigo; não te deixará nem te desamparará." },
+  { id: "sl27-1", ref: "Salmos 27:1", themes: ["coragem", "consolo", "salvação"], text: "O Senhor é a minha luz e a minha salvação; a quem temerei? O Senhor é a força da minha vida; de quem me recearei?" },
+  { id: "is40-31", ref: "Isaías 40:31", themes: ["esperança", "coragem"], text: "Mas os que esperam no Senhor renovarão as suas forças, subirão com asas como águias; correrão, e não se cansarão; caminharão, e não se fatigarão." },
+  { id: "jo16-33", ref: "João 16:33", themes: ["paz", "coragem"], text: "Tenho-vos dito isto, para que em mim tenhais paz; no mundo tereis aflições, mas tende bom ânimo, eu venci o mundo." },
+  { id: "sl91-1", ref: "Salmos 91:1", themes: ["consolo", "paz"], text: "Aquele que habita no esconderijo do Altíssimo, à sombra do Onipotente descansará." },
+  { id: "sl91-2", ref: "Salmos 91:2", themes: ["fé", "consolo"], text: "Direi do Senhor: Ele é o meu Deus, o meu refúgio, a minha fortaleza, e nele confiarei." },
+  { id: "sl121-1", ref: "Salmos 121:1-2", themes: ["consolo", "esperança"], text: "Elevo os meus olhos para os montes, de onde vem o meu socorro. O meu socorro vem do Senhor que fez o céu e a terra." },
+  { id: "na1-7", ref: "Naum 1:7", themes: ["consolo", "esperança"], text: "O Senhor é bom, uma fortaleza no dia da angústia, e conhece os que confiam nele." },
+  { id: "is26-3", ref: "Isaías 26:3", themes: ["paz", "fé"], text: "Tu conservarás em paz aquele cuja mente está firme em ti; porque ele confia em ti." },
+  { id: "is43-1", ref: "Isaías 43:1", themes: ["consolo", "amor"], text: "Mas agora, assim diz o Senhor que te criou, ó Jacó, e que te formou, ó Israel: Não temas, porque eu te remi; chamei-te pelo teu nome, tu és meu." },
+  { id: "sl37-5", ref: "Salmos 37:5", themes: ["fé", "esperança"], text: "Entrega o teu caminho ao Senhor; confia nele, e ele o fará." },
+
+  // ——— Palavra / Verdade ———
+  { id: "sl119-105", ref: "Salmos 119:105", themes: ["verdade", "esperança"], text: "Lâmpada para os meus pés é tua palavra, e luz para o meu caminho." },
+  { id: "jo8-32", ref: "João 8:32", themes: ["verdade"], text: "E conhecereis a verdade, e a verdade vos libertará." },
+  { id: "jo8-36", ref: "João 8:36", themes: ["nova vida", "verdade"], text: "Se, pois, o Filho vos libertar, verdadeiramente sereis livres." },
+  { id: "hb13-8", ref: "Hebreus 13:8", themes: ["verdade", "esperança"], text: "Jesus Cristo é o mesmo, ontem, e hoje, e eternamente." },
+  { id: "jo20-31", ref: "João 20:31", themes: ["fé", "vida eterna"], text: "Estes, porém, foram escritos para que creiais que Jesus é o Cristo, o Filho de Deus, e para que, crendo, tenhais vida em seu nome." },
+  { id: "rm1-16", ref: "Romanos 1:16", themes: ["salvação", "fé"], text: "Porque não me envergonho do evangelho de Cristo, pois é o poder de Deus para salvação de todo aquele que crê; primeiro do judeu, e também do grego." },
+  { id: "hb11-6", ref: "Hebreus 11:6", themes: ["fé"], text: "Ora, sem fé é impossível agradar-lhe; porque é necessário que aquele que se aproxima de Deus creia que ele existe, e que é galardoador dos que o buscam." },
+
+  // ——— Oração / Busca ———
+  { id: "mt7-7", ref: "Mateus 7:7", themes: ["oração", "convite"], text: "Pedi, e dar-se-vos-á; buscai, e encontrareis; batei, e abrir-se-vos-á." },
+  { id: "sl145-18", ref: "Salmos 145:18", themes: ["oração", "consolo"], text: "Perto está o Senhor de todos os que o invocam, de todos os que o invocam em verdade." },
+  { id: "sl34-8", ref: "Salmos 34:8", themes: ["convite", "fé"], text: "Provai, e vede que o Senhor é bom; bem-aventurado o homem que nele confia." },
+  { id: "at2-21", ref: "Atos 2:21", themes: ["salvação", "convite"], text: "E acontecerá que todo aquele que invocar o nome do Senhor será salvo." },
+
+  // ——— Convite / Vida ———
+  { id: "jo4-14", ref: "João 4:14", themes: ["vida eterna", "convite"], text: "Mas aquele que beber da água que eu lhe der nunca terá sede, porque a água que eu lhe der se fará nele uma fonte de água que salte para a vida eterna." },
+  { id: "jo6-35", ref: "João 6:35", themes: ["convite", "vida eterna"], text: "E Jesus lhes disse: Eu sou o pão da vida; aquele que vem a mim não terá fome, e quem crê em mim nunca terá sede." },
+  { id: "mc8-36", ref: "Marcos 8:36", themes: ["salvação", "pecado"], text: "Pois, que aproveitaria ao homem ganhar todo o mundo e perder a sua alma?" },
+  { id: "1jo5-11", ref: "1 João 5:11", themes: ["vida eterna"], text: "E o testemunho é este: que Deus nos deu a vida eterna; e esta vida está em seu Filho." },
+
+  // ——— Nova vida / Alegria ———
+  { id: "sl51-10", ref: "Salmos 51:10", themes: ["arrependimento", "nova vida"], text: "Cria em mim, ó Deus, um coração puro, e renova em mim um espírito reto." },
+  { id: "mt5-16", ref: "Mateus 5:16", themes: ["nova vida"], text: "Assim resplandeça a vossa luz diante dos homens, para que vejam as vossas boas obras e glorifiquem a vosso Pai, que está nos céus." },
+  { id: "gl5-22", ref: "Gálatas 5:22", themes: ["nova vida", "alegria"], text: "Mas o fruto do Espírito é: amor, gozo, paz, longanimidade, benignidade, bondade, fé, mansidão, temperança." },
+  { id: "sl118-24", ref: "Salmos 118:24", themes: ["alegria"], text: "Este é o dia que fez o Senhor; regozijemo-nos, e alegremo-nos nele." },
+  { id: "lm3-22", ref: "Lamentações 3:22-23", themes: ["amor", "esperança"], text: "As misericórdias do Senhor são a causa de não sermos consumidos, porque as suas misericórdias não têm fim; novas são cada manhã; grande é a tua fidelidade." },
 ];
 
 export function listThemes() {
