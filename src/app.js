@@ -1,6 +1,6 @@
 // app.js — Integrador (NÃO é de nenhum agente de módulo).
 // Liga os controles da UI aos três módulos via os contratos de CONTRACTS.md.
-import { listThemes } from "./data/verses.js";
+import { listThemes, VERSES } from "./data/verses.js";
 import {
   getRandomVerses,
   searchVerses,
@@ -199,6 +199,70 @@ function collectVerses() {
   }
 }
 
+// --- Persistência das preferências (localStorage) ------------------------------
+const SETTINGS_KEY = "papelzinho:settings:v1";
+
+function saveSettings() {
+  try {
+    const data = {
+      mode: state.mode,
+      theme: $("#theme").value,
+      count: $("#count").value,
+      sameVerse: $("#sameVerse").checked,
+      fillPage: $("#fillPage").checked,
+      size: $("#size").value,
+      fontScale: $("#fontScale").value,
+      // imagem própria não é persistida (data URL pode estourar a cota);
+      // se o template ativo é "custom", guarda o padrão no lugar.
+      template: $("#template").value === "custom" ? DEFAULT_TEMPLATE_ID : $("#template").value,
+      overlay: $("#overlay").value,
+      footer: $("#footerText").value,
+      pasteText: $("#pasteText").value,
+      pickedIds: state.picked.map((v) => v.id),
+    };
+    localStorage.setItem(SETTINGS_KEY, JSON.stringify(data));
+  } catch (e) {
+    // localStorage indisponível (modo privado etc.) não deve quebrar o app.
+  }
+}
+
+function restoreSettings() {
+  let data;
+  try {
+    data = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+  } catch (e) {
+    return;
+  }
+  if (!data || typeof data !== "object") return;
+
+  const setVal = (sel, val) => {
+    const el = $(sel);
+    if (val !== undefined && val !== null && el) el.value = val;
+  };
+  if (data.mode) {
+    const radio = document.querySelector(`input[name="mode"][value="${data.mode}"]`);
+    if (radio) radio.checked = true;
+  }
+  setVal("#theme", data.theme);
+  setVal("#count", data.count);
+  if (typeof data.sameVerse === "boolean") $("#sameVerse").checked = data.sameVerse;
+  if (typeof data.fillPage === "boolean") $("#fillPage").checked = data.fillPage;
+  // selects só aceitam valores que existem nas opções; inválidos caem no atual.
+  if (data.size && TRACT_SIZES.some((s) => s.id === data.size)) setVal("#size", data.size);
+  setVal("#fontScale", data.fontScale);
+  $("#fontScaleVal").textContent = Math.round(($("#fontScale").value || 1) * 100) + "%";
+  if (data.template && TEMPLATES.some((t) => t.id === data.template)) setVal("#template", data.template);
+  setVal("#overlay", data.overlay);
+  $("#overlayVal").textContent = Math.round(($("#overlay").value || 0) * 100) + "%";
+  setVal("#footerText", data.footer);
+  setVal("#pasteText", data.pasteText);
+  if (Array.isArray(data.pickedIds)) {
+    state.picked = data.pickedIds
+      .map((id) => VERSES.find((v) => v.id === id))
+      .filter(Boolean);
+  }
+}
+
 // --- Zoom do preview ----------------------------------------------------------
 function applyZoom(z) {
   state.zoom = Math.min(3, Math.max(0.2, z));
@@ -260,6 +324,7 @@ function generate() {
     console.error("Erro no layout:", e);
     sheetContainer.innerHTML = `<div class="empty">Erro ao renderizar a folha: ${e.message}</div>`;
   }
+  saveSettings();
 }
 
 // --- Eventos ------------------------------------------------------------------
@@ -267,7 +332,9 @@ function init() {
   fillThemes();
   fillSizes();
   fillTemplates();
+  restoreSettings(); // aplica preferências salvas antes de ligar os eventos
   applyModeVisibility();
+  renderPicked();
 
   document.querySelectorAll('input[name="mode"]').forEach((r) =>
     r.addEventListener("change", () => {
