@@ -2,6 +2,17 @@
    Estiliza: a folha A4 com sombra de preview, o grid de papelzinhos,
    a tipografia (serifada para o versículo) e as marcas de corte. */
 
+/* Autossuficiência do módulo: não depender do reset global do main.css.
+   (padding do .tract-content precisa contar DENTRO da célula em mm) */
+.a4-page,
+.tract-grid,
+.tract,
+.tract-bg,
+.tract-content,
+.tract-content * {
+  box-sizing: border-box;
+}
+
 /* ---- Folha A4 (preview na tela) ----------------------------------------- */
 .a4-page {
   width: 210mm;
