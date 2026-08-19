@@ -1,5 +1,7 @@
 # Worktrees temporários de agentes / arquivos de ferramenta
 .claude/
+.playwright-cli/
+output/playwright/
 
 # Sistema
 .DS_Store
