@@ -2,7 +2,7 @@
    O que está na tela deve sair igual no papel. */
 
 @media print {
-  /* Folha A4 sem margens do navegador: o respiro fica nos papelzinhos. */
+  /* Folha A4 sem margens do navegador: o respiro fica nos papeizinhos. */
   @page {
     size: A4;
     margin: 0;

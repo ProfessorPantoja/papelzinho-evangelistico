@@ -1,4 +1,4 @@
-# PRD — Renderizador de Papelzinhos Evangelísticos
+# PRD — Renderizador de Papeizinhos Evangelísticos
 
 > **Status:** Rascunho para discussão (pré-execução)
 > **Autor:** Art Pantoja
@@ -9,9 +9,9 @@
 
 ## 1. Visão Geral
 
-Criar uma ferramenta (aplicação web) que **monta e renderiza folhas A4 cheias de "papelzinhos" evangelísticos** — pequenos cartões/folhetos contendo versículos bíblicos — prontos para imprimir e recortar.
+Criar uma ferramenta (aplicação web) que **monta e renderiza folhas A4 cheias de "papeizinhos" evangelísticos** — pequenos cartões/folhetos contendo versículos bíblicos — prontos para imprimir e recortar.
 
-A ideia central: o usuário escolhe versículos (de várias formas), escolhe um tamanho e um design de fundo, e a ferramenta diagrama automaticamente **vários papelzinhos lado a lado** preenchendo a folha A4, otimizando o aproveitamento do papel.
+A ideia central: o usuário escolhe versículos (de várias formas), escolhe um tamanho e um design de fundo, e a ferramenta diagrama automaticamente **vários papeizinhos lado a lado** preenchendo a folha A4, otimizando o aproveitamento do papel.
 
 ### Resultado final esperado
 Uma folha A4 (na tela e em PDF/impressão) com **vários bloquinhos um do lado do outro**, cada um com um versículo escrito dentro, com marcas de corte para facilitar o recorte.
@@ -23,7 +23,7 @@ Uma folha A4 (na tela e em PDF/impressão) com **vários bloquinhos um do lado d
 - **Evangelista/membro de igreja** que quer imprimir dezenas de folhetinhos baratos para distribuir.
 - Quer **rapidez**: gerar uma folha cheia em poucos cliques.
 - Quer **variedade**: vários versículos diferentes na mesma folha (ou repetir o mesmo, se preferir).
-- Quer **economia de papel**: o máximo de papelzinhos por folha A4.
+- Quer **economia de papel**: o máximo de papeizinhos por folha A4.
 - Quer **aparência agradável**: não um retângulo branco vazio, mas algo com um fundo bonito.
 
 ---
@@ -34,10 +34,10 @@ Uma folha A4 (na tela e em PDF/impressão) com **vários bloquinhos um do lado d
 O usuário pode montar a lista de versículos de **4 formas**:
 
 1. **Aleatório** — a ferramenta sorteia versículos de um banco de dados.
-   - Opção de definir quantos papelzinhos / quantos versículos sortear.
+   - Opção de definir quantos papeizinhos / quantos versículos sortear.
    - Opção de filtrar por tema, livro ou tamanho (ver decisões em aberto).
 2. **Escolha manual** — o usuário busca e seleciona versículos específicos (ex.: João 3:16).
-3. **Colar texto** — o usuário cola texto de outro lugar (um ou vários versículos), e a ferramenta usa como conteúdo dos papelzinhos.
+3. **Colar texto** — o usuário cola texto de outro lugar (um ou vários versículos), e a ferramenta usa como conteúdo dos papeizinhos.
 4. **Geração assistida** — o usuário pede para "gerar" versículos (ex.: por tema "salvação", "esperança", "amor de Deus"), e a ferramenta sugere/monta a seleção.
 
 ### 3.2. Versão da Bíblia
@@ -45,10 +45,10 @@ O usuário pode montar a lista de versículos de **4 formas**:
 - O texto dos versículos deve seguir essa versão.
 - *(Sugestão: arquitetar para permitir outras versões no futuro — ver Seção 7.)*
 
-### 3.3. Tamanho dos papelzinhos
+### 3.3. Tamanho dos papeizinhos
 - Existe um **tamanho padrão otimizado** (escolhido para caber o máximo possível por folha A4).
 - O usuário **pode alterar** o tamanho (escolher dentre presets e/ou definir medidas).
-- A folha A4 é preenchida automaticamente com a maior quantidade possível de papelzinhos daquele tamanho.
+- A folha A4 é preenchida automaticamente com a maior quantidade possível de papeizinhos daquele tamanho.
 
 ### 3.4. Design / arte de fundo
 - Cada papelzinho pode ter uma **arte de fundo** (para não ficar um folheto branco e sem graça).
@@ -59,8 +59,8 @@ O usuário pode montar a lista de versículos de **4 formas**:
 
 ### 3.5. Layout e diagramação da folha A4
 - A folha de saída é **A4**.
-- Os papelzinhos ficam dispostos **em grade, lado a lado**, preenchendo a folha.
-- Deve haver **marcas de corte / linhas de recorte** (ou margem de respiro) entre os papelzinhos.
+- Os papeizinhos ficam dispostos **em grade, lado a lado**, preenchendo a folha.
+- Deve haver **marcas de corte / linhas de recorte** (ou margem de respiro) entre os papeizinhos.
 - A saída precisa ser **impressa / exportada em PDF** com fidelidade (tamanho A4 real).
 
 ### 3.6. Tratamento de versículos de tamanhos diferentes (EM ABERTO)
@@ -159,5 +159,5 @@ O usuário pode montar a lista de versículos de **4 formas**:
 
 1. Você revisa este PRD e responde as **Decisões em Aberto** (Seção 8).
 2. Ajusto o PRD conforme suas respostas.
-3. Monto um **protótipo HTML** de uma folha A4 com papelzinhos + 1–2 templates de arte, só pra você ver o resultado e validarmos o visual.
+3. Monto um **protótipo HTML** de uma folha A4 com papeizinhos + 1–2 templates de arte, só pra você ver o resultado e validarmos o visual.
 4. A partir do protótipo aprovado, implementamos o MVP completo.

@@ -50,11 +50,11 @@ Arquivos: `src/layout.js`, `src/styles/print.css`, `src/styles/layout.css`
 export const TRACT_SIZES = [ { id, label, wMm, hMm } /* presets de tamanho */ ];
 export const DEFAULT_SIZE_ID = "...";
 /**
- * Renderiza dentro de containerEl uma ou mais páginas A4 com os papelzinhos.
+ * Renderiza dentro de containerEl uma ou mais páginas A4 com os papeizinhos.
  * - Faz o grid lado a lado preenchendo a A4.
  * - Para CADA papelzinho cria a estrutura e chama template.apply(innerEl, {sizeId}).
  * - Aplica auto-ajuste de fonte para versículos longos caberem (fontScale = multiplicador do usuário).
- * - Desenha marcas de corte entre os papelzinhos.
+ * - Desenha marcas de corte entre os papeizinhos.
  * - footer (opcional): linha de rodapé (igreja/contato) na base de cada papelzinho.
  */
 export function renderSheet(containerEl, { verses, sizeId, template, fontScale = 1, footer = "" });

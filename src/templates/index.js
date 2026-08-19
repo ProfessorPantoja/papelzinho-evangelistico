@@ -1,5 +1,5 @@
 // templates/index.js — DONO: Agente "templates".
-// Artes de fundo para os papelzinhos. Cada template aplica uma arte ao
+// Artes de fundo para os papeizinhos. Cada template aplica uma arte ao
 // elemento `.tract-bg` (position:absolute; inset:0;) que fica ATRÁS do
 // conteúdo (`.tract-content`). Tudo feito com CSS e/ou SVG inline — sem
 // imagens externas. Cores suaves e bom contraste para não atrapalhar a

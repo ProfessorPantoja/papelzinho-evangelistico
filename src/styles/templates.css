@@ -1,6 +1,6 @@
 /* templates.css — DONO: Agente "templates".
  *
- * Artes de fundo dos papelzinhos. Todas vivem dentro de `.tract-bg`
+ * Artes de fundo dos papeizinhos. Todas vivem dentro de `.tract-bg`
  * (position:absolute; inset:0; z-index:0) e ficam ATRÁS do
  * `.tract-content`. Regras de ouro:
  *   - cores suaves, texto escuro sempre legível;

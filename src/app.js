@@ -400,7 +400,7 @@ function collectVerses() {
       case "generate": {
         const opts = theme ? { themes: [theme] } : {};
         if (sameVerse) {
-          // Um único versículo repetido em todos os papelzinhos.
+          // Um único versículo repetido em todos os papeizinhos.
           const one = getRandomVerses(1, opts);
           return one.length ? new Array(wanted).fill(one[0]) : [];
         }
@@ -534,7 +534,7 @@ function updateSheetInfo(versesCount) {
   const pages = Math.max(1, Math.ceil(versesCount / perPage));
   const plural = (n, s, p) => (n === 1 ? s : p);
   info.textContent =
-    `${versesCount} ${plural(versesCount, "papelzinho", "papelzinhos")} · ` +
+    `${versesCount} ${plural(versesCount, "papelzinho", "papeizinhos")} · ` +
     `${size ? `${size.wMm}×${size.hMm} mm` : ""} · ` +
     `${perPage} por folha · ${pages} ${plural(pages, "folha A4", "folhas A4")}`;
 }
@@ -617,7 +617,7 @@ function measureLayoutStatus() {
   document.documentElement.dataset.layoutStatus = overflowCount ? "overflow" : "ready";
   setPrintPending(false);
   if (overflowCount) {
-    const plural = overflowCount === 1 ? "papelzinho está" : "papelzinhos estão";
+    const plural = overflowCount === 1 ? "papelzinho está" : "papeizinhos estão";
     setPreviewStatus(
       `${overflowCount} ${plural} com texto cortado. Reduza a fonte, use um tamanho maior ou encurte o rodapé. A impressão foi bloqueada.`,
       "warning"
@@ -711,7 +711,7 @@ function openPrintDialog() {
   const pages = getPageCount(state.currentVerses.length, perPage);
   const plural = pages === 1 ? "folha A4" : "folhas A4";
   $("#printDialogSummary").textContent =
-    `${state.currentVerses.length} papelzinhos em ${pages} ${plural}.`;
+    `${state.currentVerses.length} papeizinhos em ${pages} ${plural}.`;
   const dialog = $("#printDialog");
   dialog.dataset.pages = String(pages);
   document.dispatchEvent(

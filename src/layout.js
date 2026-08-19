@@ -1,9 +1,9 @@
-// layout.js — Diagramação A4 dos papelzinhos. DONO: Agente "layout".
-// Monta uma ou mais folhas A4 com os papelzinhos lado a lado, aproveitando
+// layout.js — Diagramação A4 dos papeizinhos. DONO: Agente "layout".
+// Monta uma ou mais folhas A4 com os papeizinhos lado a lado, aproveitando
 // o máximo do papel, com auto-ajuste de fonte e marcas de corte para recorte.
 
 /**
- * Presets de tamanho pensados para MAXIMIZAR papelzinhos por A4 (210×297mm).
+ * Presets de tamanho pensados para MAXIMIZAR papeizinhos por A4 (210×297mm).
  * Com margem de 8mm e gap de 3mm (ver A4 abaixo), a área útil é 194×281mm.
  * Cada medida foi escolhida para encaixar quase 100% da área útil (ver col/lin):
  *
@@ -26,7 +26,7 @@ export const TRACT_SIZES = [
 
 export const DEFAULT_SIZE_ID = "medium";
 
-// Geometria da folha. Margem externa da folha + espaçamento entre papelzinhos.
+// Geometria da folha. Margem externa da folha + espaçamento entre papeizinhos.
 const A4 = { wMm: 210, hMm: 297, marginMm: 8, gapMm: 3 };
 
 // Estilo das marcas de corte: "dashed" (linha pontilhada na borda da célula)
@@ -52,7 +52,7 @@ function computeGrid(size) {
   return { cols, rows, perPage: cols * rows };
 }
 
-/** Quantos papelzinhos cabem em UMA folha A4 para o tamanho dado (id). */
+/** Quantos papeizinhos cabem em UMA folha A4 para o tamanho dado (id). */
 export function capacityPerPage(sizeId) {
   return computeGrid(resolveSize(sizeId)).perPage;
 }
@@ -151,7 +151,7 @@ function autofitTract(tract) {
 }
 
 /**
- * Renderiza dentro de containerEl uma ou mais páginas A4 com os papelzinhos.
+ * Renderiza dentro de containerEl uma ou mais páginas A4 com os papeizinhos.
  * @param {HTMLElement} containerEl
  * @param {{verses: Array, sizeId: string, template: object, fontScale?: number, footer?: string}} opts
  */

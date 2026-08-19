@@ -1,5 +1,5 @@
 /* layout.css — Diagramação A4 na tela (preview). DONO: Agente "layout".
-   Estiliza: a folha A4 com sombra de preview, o grid de papelzinhos,
+   Estiliza: a folha A4 com sombra de preview, o grid de papeizinhos,
    a tipografia (serifada para o versículo) e as marcas de corte. */
 
 /* Autossuficiência do módulo: não depender do reset global do main.css.
@@ -24,7 +24,7 @@
   flex: 0 0 auto; /* não encolhe dentro do .sheet-container (flex column) */
 }
 
-/* ---- Grid dos papelzinhos ----------------------------------------------- */
+/* ---- Grid dos papeizinhos ----------------------------------------------- */
 .tract-grid {
   display: grid;
   align-content: start;

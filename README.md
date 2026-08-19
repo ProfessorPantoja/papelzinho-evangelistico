@@ -1,6 +1,6 @@
-# 📖 Papelzinhos evangelísticos
+# 📖 Papeizinhos evangelísticos
 
-Ferramenta web para montar folhas A4 cheias de **papelzinhos evangelísticos** (cartões com versículos
+Ferramenta web para montar folhas A4 cheias de **papeizinhos evangelísticos** (cartões com versículos
 da Bíblia, versão **Almeida Corrigida Fiel — ACF**), prontos para imprimir e recortar.
 
 ## Como usar
