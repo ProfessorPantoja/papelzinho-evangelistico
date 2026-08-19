@@ -6,6 +6,16 @@ export const IMAGE_LIMITS = Object.freeze({
   maxPixels: 32_000_000,
 });
 
+export const DEFAULT_FOOTER_TEXT =
+  "IGREJA ADMPF - Descida do Metrô Eng. da Rainha - Ou visite uma igreja próxima.";
+
+export function composeFooter(useDefault, extraText = "") {
+  const extra = String(extraText ?? "").replace(/\s+/g, " ").trim();
+  if (useDefault && extra) return `${DEFAULT_FOOTER_TEXT}\n${extra}`;
+  if (useDefault) return DEFAULT_FOOTER_TEXT;
+  return extra;
+}
+
 export function clampCount(value, max = 120) {
   const parsed = Number.parseInt(value, 10);
   if (!Number.isFinite(parsed)) return 0;

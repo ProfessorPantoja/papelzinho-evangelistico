@@ -20,6 +20,7 @@ import {
   makeImageTemplate,
 } from "./templates/index.js";
 import {
+  composeFooter,
   clampCount,
   getPageCount,
   getPrintReadiness,
@@ -446,6 +447,7 @@ function saveSettings() {
       // se o template ativo é "custom", guarda o padrão no lugar.
       template: $("#template").value === "custom" ? DEFAULT_TEMPLATE_ID : $("#template").value,
       overlay: $("#overlay").value,
+      defaultFooter: $("#defaultFooter").checked,
       footer: $("#footerText").value,
       pasteText: $("#pasteText").value,
       pickedIds: state.picked.map((v) => v.id),
@@ -487,6 +489,9 @@ function restoreSettings() {
   if (data.template && TEMPLATES.some((t) => t.id === data.template)) setVal("#template", data.template);
   setVal("#overlay", data.overlay);
   $("#overlayVal").textContent = Math.round(($("#overlay").value || 0) * 100) + "%";
+  if (typeof data.defaultFooter === "boolean") {
+    $("#defaultFooter").checked = data.defaultFooter;
+  }
   setVal("#footerText", data.footer);
   setVal("#pasteText", data.pasteText);
   if (Array.isArray(data.pickedIds)) {
@@ -657,7 +662,10 @@ function renderCurrentSelection() {
   } else {
     template = getTemplate($("#template").value);
   }
-  const footer = $("#footerText").value.trim();
+  const footer = composeFooter(
+    $("#defaultFooter").checked,
+    $("#footerText").value
+  );
   try {
     renderSheet(sheetContainer, { verses, sizeId, template, fontScale, footer });
     scheduleLayoutPreflight();
@@ -771,6 +779,7 @@ function init() {
   $("#pasteText").addEventListener("input", markSelectionDirty);
   $("#sameVerse").addEventListener("change", markSelectionDirty);
   $("#fillPage").addEventListener("change", markSelectionDirty);
+  $("#defaultFooter").addEventListener("change", renderCurrentSelection);
   $("#footerText").addEventListener("input", renderCurrentSelection);
 
   // --- Imagem de fundo própria ---

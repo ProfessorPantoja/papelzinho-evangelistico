@@ -234,6 +234,32 @@ body {
 }
 .check input { width: 20px; height: 20px; flex: 0 0 auto; margin: 0; accent-color: var(--accent-strong); }
 
+.footer-default-check {
+  min-height: 68px;
+  padding: 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--input-bg);
+  transition: border-color 180ms var(--ease), background 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+.footer-default-check:hover { border-color: rgba(230, 160, 111, 0.5); }
+.footer-default-check:has(input:checked) {
+  border-color: var(--accent);
+  background: #18382f;
+  box-shadow: inset 0 0 0 1px rgba(255, 225, 201, 0.08);
+}
+.footer-default-check > span { min-width: 0; }
+.footer-default-check strong,
+.footer-default-check small { display: block; }
+.footer-default-check strong { color: #f7efe3; font-size: 13px; }
+.footer-default-check small {
+  margin-top: 3px;
+  color: var(--sidebar-muted);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
 input[type="text"],
 input[type="search"],
 input[type="number"],

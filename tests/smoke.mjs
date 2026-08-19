@@ -1,5 +1,7 @@
 import assert from "node:assert/strict";
 import {
+  composeFooter,
+  DEFAULT_FOOTER_TEXT,
   IMAGE_LIMITS,
   clampCount,
   getPageCount,
@@ -8,6 +10,16 @@ import {
   validateImageDimensions,
   validateImageFile,
 } from "../src/quality.js";
+
+assert.equal(composeFooter(true), DEFAULT_FOOTER_TEXT);
+assert.equal(
+  composeFooter(false, "  WhatsApp   (91) 99999-9999  "),
+  "WhatsApp (91) 99999-9999"
+);
+assert.equal(
+  composeFooter(true, "Cultos aos domingos"),
+  `${DEFAULT_FOOTER_TEXT}\nCultos aos domingos`
+);
 
 assert.equal(clampCount(-8), 0);
 assert.equal(clampCount("17.9"), 17);
@@ -42,4 +54,4 @@ assert.deepEqual(
   { ready: true, reason: "ready" }
 );
 
-console.log("smoke: 17 verificações aprovadas");
+console.log("smoke: 20 verificações aprovadas");

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Monte folhas A4 de papelzinhos evangelísticos com versículos da Bíblia (ACF), prontos para imprimir e recortar." />
   <meta name="theme-color" content="#122923" />
-  <title>Papelzinhos Evangelísticos</title>
+  <title>Papelzinhos evangelísticos</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23152a25'/%3E%3Cpath d='M13 17c8-3 14-1 19 4 5-5 11-7 19-4v32c-8-2-14 0-19 5-5-5-11-7-19-5z' fill='%23f5ead7'/%3E%3Cpath d='M32 21v33' stroke='%23d27d56' stroke-width='3'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="src/styles/main.css" />
   <link rel="stylesheet" href="src/styles/layout.css" />
@@ -24,7 +24,7 @@
       </span>
       <span>
         <span class="eyebrow">Ateliê de impressão</span>
-        <h1>Papelzinhos<br />Evangelísticos</h1>
+        <h1>Papelzinhos<br />evangelísticos</h1>
       </span>
     </header>
     <p class="subtitle">Versículos prontos para imprimir, recortar e compartilhar.</p>
@@ -121,11 +121,20 @@
     </section>
 
     <section class="panel" aria-labelledby="step-personalize">
-      <h2 id="step-personalize"><span>04</span> Personalizar <small>opcional</small></h2>
+      <h2 id="step-personalize"><span>04</span> Personalização <small>opcional</small></h2>
       <div class="field">
-        <label for="footerText">Rodapé dos papelzinhos (igreja / contato)</label>
-        <input type="text" id="footerText" maxlength="80" placeholder="ex.: Igreja Batista Central · (91) 99999-9999" aria-describedby="footerHint" />
-        <small class="hint" id="footerHint">Aparece em letra pequena na base de cada papelzinho.</small>
+        <label class="check footer-default-check">
+          <input type="checkbox" id="defaultFooter" aria-describedby="defaultFooterText" />
+          <span>
+            <strong>Usar rodapé padrão</strong>
+            <small id="defaultFooterText">IGREJA ADMPF - Descida do Metrô Eng. da Rainha - Ou visite uma igreja próxima.</small>
+          </span>
+        </label>
+      </div>
+      <div class="field">
+        <label for="footerText">Texto extra do rodapé (opcional)</label>
+        <input type="text" id="footerText" maxlength="80" placeholder="ex.: WhatsApp (91) 99999-9999" aria-describedby="footerHint" />
+        <small class="hint" id="footerHint">Se o rodapé padrão estiver ativo, este texto aparecerá abaixo dele.</small>
       </div>
     </section>
 

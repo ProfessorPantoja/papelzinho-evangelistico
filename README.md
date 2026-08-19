@@ -1,4 +1,4 @@
-# 📖 Papelzinhos Evangelísticos
+# 📖 Papelzinhos evangelísticos
 
 Ferramenta web para montar folhas A4 cheias de **papelzinhos evangelísticos** (cartões com versículos
 da Bíblia, versão **Almeida Corrigida Fiel — ACF**), prontos para imprimir e recortar.
@@ -32,7 +32,7 @@ Suas preferências ficam salvas no navegador (localStorage) e voltam na próxima
 - **Galeria acessível com 22 artes de fundo** em CSS/SVG (leves, imprimem nítido e gastam pouca
   tinta) + upload validado de imagem própria com clareador de legibilidade.
 - **Marcas de corte** nos cantos para guiar o recorte.
-- **Rodapé opcional** (igreja/contato) em cada papelzinho.
+- **Rodapé padrão da Igreja ADMPF** com campo separado para texto extra.
 - **Preflight de impressão** com detecção de overflow, resumo de páginas e instruções para A4.
 - **Impressão fiel A4** via CSS Print (`@page size: A4`).
 
