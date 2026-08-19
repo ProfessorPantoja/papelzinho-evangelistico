@@ -19,6 +19,14 @@ import {
   getTemplate,
   makeImageTemplate,
 } from "./templates/index.js";
+import {
+  clampCount,
+  getPageCount,
+  getPrintReadiness,
+  measurementsOverflow,
+  validateImageDimensions,
+  validateImageFile,
+} from "./quality.js";
 
 const $ = (sel) => document.querySelector(sel);
 const sheetContainer = $("#sheetContainer");
@@ -37,6 +45,12 @@ const state = {
   picked: [], // Verse[] no modo manual
   customImage: null, // data URL da imagem de fundo enviada pelo usuário
   zoom: 1, // fator de zoom do preview (1 = 100%)
+  fitZoom: true,
+  currentVerses: [], // Mantém a seleção estável durante ajustes visuais.
+  selectionDirty: false,
+  overflowCount: 0,
+  layoutPending: false,
+  imageLoadToken: 0,
 };
 
 // Largura de uma folha A4 em px CSS (210mm a 96dpi ≈ 793.7px).
@@ -79,6 +93,130 @@ function fillTemplates() {
   sel.value = DEFAULT_TEMPLATE_ID;
 }
 
+function resolveActiveTemplate() {
+  if ($("#template").value === "custom" && state.customImage) {
+    return makeImageTemplate(state.customImage, {
+      overlay: parseFloat($("#overlay").value) || 0,
+    });
+  }
+  return getTemplate($("#template").value);
+}
+
+function renderTemplateThumbnail(container, template) {
+  container.innerHTML = "";
+  const background = document.createElement("span");
+  try {
+    template.apply(background, { sizeId: "card" });
+  } catch (error) {
+    console.warn("Miniatura de template indisponível:", error);
+    background.className = "tract-bg tpl-plain";
+  }
+
+  const sample = document.createElement("span");
+  sample.className = "template-mini-content";
+  const text = document.createElement("span");
+  text.textContent = "Amor que alcança";
+  const ref = document.createElement("small");
+  ref.textContent = "João 3:16";
+  sample.append(text, ref);
+  container.append(background, sample);
+}
+
+function syncTemplateChooser() {
+  const active = resolveActiveTemplate();
+  $("#selectedTemplateName").textContent = active.name;
+  $("#galleryTemplateName").textContent = active.name;
+  $("#templateChooserButton").setAttribute(
+    "aria-label",
+    `Escolher arte de fundo. Selecionada: ${active.name}`
+  );
+  renderTemplateThumbnail($("#selectedTemplatePreview"), active);
+
+  document.querySelectorAll(".template-option").forEach((button) => {
+    const selected = button.dataset.templateId === $("#template").value;
+    button.setAttribute("aria-checked", selected ? "true" : "false");
+    button.tabIndex = selected ? 0 : -1;
+  });
+}
+
+function applyTemplateChoice(templateId, { close = false } = {}) {
+  const select = $("#template");
+  if (!TEMPLATES.some((template) => template.id === templateId)) return;
+  select.value = templateId;
+  select.dispatchEvent(new Event("change", { bubbles: true }));
+  if (close) $("#templateDialog").close();
+}
+
+function initTemplateChooser() {
+  const field = $("#templateField");
+  const gallery = $("#templateGallery");
+  const trigger = $("#templateChooserButton");
+  const dialog = $("#templateDialog");
+  const fragment = document.createDocumentFragment();
+
+  try {
+    for (const template of TEMPLATES) {
+      const option = document.createElement("button");
+      option.type = "button";
+      option.className = "template-option";
+      option.dataset.templateId = template.id;
+      option.setAttribute("role", "radio");
+      option.setAttribute("aria-label", template.name);
+
+      const thumb = document.createElement("span");
+      thumb.className = "template-thumb";
+      thumb.setAttribute("aria-hidden", "true");
+      renderTemplateThumbnail(thumb, template);
+
+      const label = document.createElement("span");
+      label.className = "template-option-label";
+      label.textContent = template.name;
+      option.append(thumb, label);
+      option.addEventListener("click", () =>
+        applyTemplateChoice(template.id, { close: true })
+      );
+      fragment.appendChild(option);
+    }
+  } catch (error) {
+    console.warn("Galeria de templates indisponível; usando o seletor padrão.", error);
+    return;
+  }
+
+  gallery.appendChild(fragment);
+  gallery.addEventListener("keydown", (event) => {
+    const current = event.target.closest(".template-option");
+    if (!current) return;
+    const buttons = [...gallery.querySelectorAll(".template-option")];
+    const index = buttons.indexOf(current);
+    let nextIndex;
+    if (["ArrowRight", "ArrowDown"].includes(event.key)) nextIndex = (index + 1) % buttons.length;
+    else if (["ArrowLeft", "ArrowUp"].includes(event.key)) nextIndex = (index - 1 + buttons.length) % buttons.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = buttons.length - 1;
+    else return;
+
+    event.preventDefault();
+    const next = buttons[nextIndex];
+    next.focus();
+    applyTemplateChoice(next.dataset.templateId);
+  });
+
+  trigger.addEventListener("click", () => {
+    syncTemplateChooser();
+    dialog.showModal();
+    requestAnimationFrame(() => {
+      const selected = gallery.querySelector('[aria-checked="true"]');
+      (selected || gallery.querySelector(".template-option"))?.focus();
+    });
+  });
+
+  $("#template").tabIndex = -1;
+  $("#template").setAttribute("aria-hidden", "true");
+  field.classList.add("is-enhanced");
+  trigger.hidden = false;
+  syncTemplateChooser();
+}
+
 // Garante que exista a opção "Imagem própria" no select de templates.
 function ensureCustomOption() {
   const sel = $("#template");
@@ -95,13 +233,85 @@ function removeCustomOption() {
   if (o) o.remove();
 }
 
+function setImageError(message = "") {
+  const input = $("#bgImage");
+  const error = $("#bgImageError");
+  error.textContent = message;
+  error.hidden = !message;
+  input.setAttribute("aria-invalid", message ? "true" : "false");
+}
+
+function readImageDimensions(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      const dimensions = { width: image.naturalWidth, height: image.naturalHeight };
+      URL.revokeObjectURL(url);
+      resolve(dimensions);
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error("A imagem está corrompida ou usa um formato incompatível."));
+    };
+    image.src = url;
+  });
+}
+
+function readAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(new Error("Não foi possível ler a imagem escolhida."));
+    reader.readAsDataURL(file);
+  });
+}
+
+async function applyBackgroundImage(file) {
+  const input = $("#bgImage");
+  const token = ++state.imageLoadToken;
+  setImageError("");
+
+  const metadataError = validateImageFile(file);
+  if (metadataError) {
+    input.value = "";
+    setImageError(metadataError);
+    return;
+  }
+
+  input.setAttribute("aria-busy", "true");
+  try {
+    const dimensions = await readImageDimensions(file);
+    const dimensionError = validateImageDimensions(dimensions.width, dimensions.height);
+    if (dimensionError) throw new Error(dimensionError);
+    const dataUrl = await readAsDataUrl(file);
+    if (token !== state.imageLoadToken) return;
+
+    state.customImage = dataUrl;
+    ensureCustomOption();
+    $("#template").value = "custom";
+    $("#bgImageClear").hidden = false;
+    $("#overlayField").hidden = false;
+    syncTemplateChooser();
+    renderCurrentSelection();
+  } catch (error) {
+    if (token !== state.imageLoadToken) return;
+    input.value = "";
+    setImageError(error.message || "Não foi possível usar esta imagem.");
+  } finally {
+    if (token === state.imageLoadToken) input.setAttribute("aria-busy", "false");
+  }
+}
+
 // --- Alternar blocos por modo -------------------------------------------------
 function applyModeVisibility() {
-  state.mode = document.querySelector('input[name="mode"]:checked').value;
+  const checked = document.querySelector('input[name="mode"]:checked');
+  state.mode = checked ? checked.value : "random";
   document.querySelectorAll(".mode-block").forEach((el) => {
     const modes = el.dataset.mode.split(" ");
-    el.style.display = modes.includes(state.mode) ? "" : "none";
+    el.hidden = !modes.includes(state.mode);
   });
+  updateGenerateLabel();
 }
 
 // --- Busca / seleção manual ---------------------------------------------------
@@ -109,6 +319,7 @@ function renderSearch() {
   const q = $("#search").value.trim();
   const box = $("#searchResults");
   box.innerHTML = "";
+  $("#search").setAttribute("aria-expanded", q ? "true" : "false");
   if (!q) return;
   let results = [];
   try {
@@ -116,16 +327,28 @@ function renderSearch() {
   } catch (e) {
     console.warn(e);
   }
+  if (!results.length) {
+    const empty = document.createElement("p");
+    empty.className = "search-empty";
+    empty.textContent = "Nenhum versículo encontrado.";
+    box.appendChild(empty);
+  }
   for (const v of results) {
-    const div = document.createElement("div");
-    div.className = "result";
-    div.innerHTML = `<strong>${v.ref}</strong> <span>${v.text}</span>`;
-    div.onclick = () => {
+    const result = document.createElement("button");
+    result.type = "button";
+    result.className = "result";
+    result.setAttribute("aria-label", `Adicionar ${v.ref}`);
+    const ref = document.createElement("strong");
+    ref.textContent = v.ref;
+    const text = document.createElement("span");
+    text.textContent = v.text;
+    result.append(ref, text);
+    result.addEventListener("click", () => {
       if (!state.picked.find((p) => p.id === v.id)) state.picked.push(v);
       renderPicked();
-      generate();
-    };
-    box.appendChild(div);
+      refreshSelection();
+    });
+    box.appendChild(result);
   }
 }
 
@@ -137,11 +360,13 @@ function renderPicked() {
     chip.className = "chip";
     chip.textContent = v.ref;
     const x = document.createElement("button");
+    x.type = "button";
     x.textContent = "×";
+    x.setAttribute("aria-label", `Remover ${v.ref}`);
     x.onclick = () => {
       state.picked.splice(i, 1);
       renderPicked();
-      generate();
+      refreshSelection();
     };
     chip.appendChild(x);
     box.appendChild(chip);
@@ -162,7 +387,7 @@ function cycleToFillPage(list) {
 
 function collectVerses() {
   const theme = $("#theme").value || undefined;
-  const count = parseInt($("#count").value, 10) || 0; // 0 = auto
+  const count = clampCount($("#count").value); // 0 = auto
   // Quando "auto" (0), preenche exatamente UMA folha A4 do tamanho escolhido.
   const wanted = count > 0 ? count : capacityPerPage($("#size").value);
   const sameVerse = $("#sameVerse").checked;
@@ -197,6 +422,11 @@ function collectVerses() {
     console.error("Erro coletando versículos:", e);
     return [];
   }
+}
+
+function normalizeCountInput() {
+  const input = $("#count");
+  input.value = String(clampCount(input.value));
 }
 
 // --- Persistência das preferências (localStorage) ------------------------------
@@ -240,7 +470,10 @@ function restoreSettings() {
     if (val !== undefined && val !== null && el) el.value = val;
   };
   if (data.mode) {
-    const radio = document.querySelector(`input[name="mode"][value="${data.mode}"]`);
+    // Versões antigas salvavam "generate"; agora o modo aleatório + tema
+    // oferece a mesma seleção com uma etapa a menos.
+    const restoredMode = data.mode === "generate" ? "random" : data.mode;
+    const radio = document.querySelector(`input[name="mode"][value="${restoredMode}"]`);
     if (radio) radio.checked = true;
   }
   setVal("#theme", data.theme);
@@ -261,11 +494,13 @@ function restoreSettings() {
       .map((id) => VERSES.find((v) => v.id === id))
       .filter(Boolean);
   }
+  normalizeCountInput();
 }
 
 // --- Zoom do preview ----------------------------------------------------------
-function applyZoom(z) {
+function applyZoom(z, { fit = false } = {}) {
   state.zoom = Math.min(3, Math.max(0.2, z));
+  state.fitZoom = fit;
   // `zoom` (e não transform) para o scroll acompanhar o tamanho renderizado.
   sheetContainer.style.zoom = state.zoom;
   $("#zoomVal").textContent = Math.round(state.zoom * 100) + "%";
@@ -274,8 +509,10 @@ function applyZoom(z) {
 function zoomToFit() {
   const scroll = $("#previewScroll");
   if (!scroll) return;
-  const available = scroll.clientWidth - 48; // desconta o padding do preview
-  applyZoom(available / A4_WIDTH_PX);
+  const styles = getComputedStyle(scroll);
+  const available =
+    scroll.clientWidth - parseFloat(styles.paddingLeft) - parseFloat(styles.paddingRight);
+  applyZoom(Math.max(0.2, available / A4_WIDTH_PX), { fit: true });
 }
 
 // --- Barra de informações da folha ---------------------------------------------
@@ -298,12 +535,115 @@ function updateSheetInfo(versesCount) {
 }
 
 // --- Render principal ---------------------------------------------------------
-function generate() {
-  const verses = collectVerses();
+function updateGenerateLabel() {
+  const label = $("#btnGenerate span");
+  if (!label) return;
+  if (state.selectionDirty) {
+    label.textContent = "Aplicar alterações";
+    return;
+  }
+  const labels = {
+    random: "Sortear novos",
+    generate: "Gerar por tema",
+    manual: "Atualizar escolhidos",
+    paste: "Aplicar texto",
+  };
+  label.textContent = labels[state.mode] || "Atualizar seleção";
+}
+
+function markSelectionDirty() {
+  state.selectionDirty = true;
+  updateGenerateLabel();
+  syncPrintAvailability();
+  setPreviewStatus(
+    "Há alterações de seleção pendentes. Clique em \"Aplicar alterações\" antes de imprimir.",
+    "pending"
+  );
+  saveSettings();
+}
+
+function refreshSelection() {
+  state.currentVerses = collectVerses();
+  state.selectionDirty = false;
+  updateGenerateLabel();
+  renderCurrentSelection();
+}
+
+function setPreviewStatus(message = "", tone = "ready") {
+  const status = $("#previewStatus");
+  if (!status) return;
+  status.textContent = message;
+  status.className = `preview-status is-${tone}`;
+  status.hidden = !message;
+}
+
+function syncPrintAvailability() {
+  const button = $("#btnPrint");
+  const readiness = getPrintReadiness({
+    hasItems: state.currentVerses.length > 0,
+    selectionDirty: state.selectionDirty,
+    layoutPending: state.layoutPending,
+    overflowCount: state.overflowCount,
+  });
+  button.disabled = !readiness.ready;
+  button.dataset.disabledReason = readiness.reason;
+  document.documentElement.dataset.printReadiness = readiness.reason;
+  return readiness;
+}
+
+function setPrintPending(pending) {
+  state.layoutPending = pending;
+  const button = $("#btnPrint");
+  button.setAttribute("aria-busy", pending ? "true" : "false");
+  syncPrintAvailability();
+}
+
+function measureLayoutStatus() {
+  let overflowCount = 0;
+  document.querySelectorAll(".tract").forEach((tract) => {
+    const content = tract.querySelector(".tract-content");
+    const overflows = Boolean(content && measurementsOverflow(content));
+    tract.classList.toggle("is-overflowing", overflows);
+    if (overflows) overflowCount++;
+  });
+
+  state.overflowCount = overflowCount;
+  sheetContainer.dataset.overflowCount = String(overflowCount);
+  document.documentElement.dataset.layoutStatus = overflowCount ? "overflow" : "ready";
+  setPrintPending(false);
+  if (overflowCount) {
+    const plural = overflowCount === 1 ? "papelzinho está" : "papelzinhos estão";
+    setPreviewStatus(
+      `${overflowCount} ${plural} com texto cortado. Reduza a fonte, use um tamanho maior ou encurte o rodapé. A impressão foi bloqueada.`,
+      "warning"
+    );
+  } else if (state.selectionDirty) {
+    setPreviewStatus(
+      "Há alterações de seleção pendentes. Clique em \"Aplicar alterações\" antes de imprimir.",
+      "pending"
+    );
+  } else if (state.currentVerses.length) {
+    setPreviewStatus("Prévia conferida e pronta para imprimir.", "ready");
+  }
+  return overflowCount;
+}
+
+function scheduleLayoutPreflight() {
+  setPrintPending(true);
+  setPreviewStatus("Conferindo a diagramação…", "checking");
+  requestAnimationFrame(() => requestAnimationFrame(measureLayoutStatus));
+}
+
+function renderCurrentSelection() {
+  const verses = state.currentVerses;
   updateSheetInfo(verses.length);
   if (!verses.length) {
     sheetContainer.innerHTML =
       '<div class="empty">Nenhum versículo selecionado. Escolha uma opção e clique em "Gerar".</div>';
+    state.overflowCount = 0;
+    setPrintPending(false);
+    setPreviewStatus("Adicione ao menos um versículo para montar a folha.", "checking");
+    saveSettings();
     return;
   }
   const sizeId = $("#size").value;
@@ -320,11 +660,82 @@ function generate() {
   const footer = $("#footerText").value.trim();
   try {
     renderSheet(sheetContainer, { verses, sizeId, template, fontScale, footer });
+    scheduleLayoutPreflight();
   } catch (e) {
     console.error("Erro no layout:", e);
     sheetContainer.innerHTML = `<div class="empty">Erro ao renderizar a folha: ${e.message}</div>`;
+    state.overflowCount = 1;
+    sheetContainer.dataset.overflowCount = "1";
+    document.documentElement.dataset.layoutStatus = "error";
+    setPrintPending(false);
+    setPreviewStatus("Não foi possível conferir a folha. A impressão foi bloqueada.", "warning");
   }
   saveSettings();
+}
+
+async function printWithPreflight() {
+  const readiness = syncPrintAvailability();
+  if (!readiness.ready) {
+    $("#previewStatus").focus({ preventScroll: false });
+    return;
+  }
+
+  setPrintPending(true);
+  setPreviewStatus("Fazendo a conferência final para impressão…", "checking");
+
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    );
+    if (measureLayoutStatus() > 0) {
+      $("#previewStatus").focus({ preventScroll: false });
+      return;
+    }
+    openPrintDialog();
+  } finally {
+    setPrintPending(false);
+  }
+}
+
+function openPrintDialog() {
+  const perPage = capacityPerPage($("#size").value);
+  const pages = getPageCount(state.currentVerses.length, perPage);
+  const plural = pages === 1 ? "folha A4" : "folhas A4";
+  $("#printDialogSummary").textContent =
+    `${state.currentVerses.length} papelzinhos em ${pages} ${plural}.`;
+  const dialog = $("#printDialog");
+  dialog.dataset.pages = String(pages);
+  document.dispatchEvent(
+    new CustomEvent("papelzinho:print-preflight", {
+      detail: { pages, items: state.currentVerses.length, paper: "A4", scale: 100 },
+    })
+  );
+  dialog.showModal();
+}
+
+async function confirmPrint() {
+  const dialog = $("#printDialog");
+  const button = $("#confirmPrint");
+  button.disabled = true;
+  button.setAttribute("aria-busy", "true");
+  try {
+    if (document.fonts && document.fonts.ready) await document.fonts.ready;
+    await new Promise((resolve) =>
+      requestAnimationFrame(() => requestAnimationFrame(resolve))
+    );
+    if (state.selectionDirty || measureLayoutStatus() > 0) {
+      dialog.close();
+      $("#previewStatus").focus({ preventScroll: false });
+      return;
+    }
+    dialog.close();
+    window.print();
+  } finally {
+    button.disabled = false;
+    button.setAttribute("aria-busy", "false");
+    syncPrintAvailability();
+  }
 }
 
 // --- Eventos ------------------------------------------------------------------
@@ -335,72 +746,82 @@ function init() {
   restoreSettings(); // aplica preferências salvas antes de ligar os eventos
   applyModeVisibility();
   renderPicked();
+  initTemplateChooser();
 
   document.querySelectorAll('input[name="mode"]').forEach((r) =>
     r.addEventListener("change", () => {
       applyModeVisibility();
-      generate();
+      refreshSelection();
     })
   );
   $("#search").addEventListener("input", renderSearch);
   $("#fontScale").addEventListener("input", (e) => {
     $("#fontScaleVal").textContent = Math.round(e.target.value * 100) + "%";
-    generate();
+    renderCurrentSelection();
   });
-  // Mudar tamanho, tema ou quantidade reflete na hora no preview.
-  $("#size").addEventListener("change", generate);
-  $("#theme").addEventListener("change", generate);
-  $("#count").addEventListener("input", debounce(generate, 300));
-  // Colar/editar texto atualiza o preview ao vivo (com debounce).
-  $("#pasteText").addEventListener("input", debounce(generate, 400));
-  $("#sameVerse").addEventListener("change", generate);
-  $("#fillPage").addEventListener("change", generate);
-  $("#footerText").addEventListener("input", debounce(generate, 400));
+  // Ajustes visuais redesenham a mesma seleção; não sorteiam outros textos.
+  $("#size").addEventListener("change", renderCurrentSelection);
+  // Tema é uma escolha explícita de conteúdo: aplica a nova seleção na hora.
+  $("#theme").addEventListener("change", refreshSelection);
+  $("#count").addEventListener("input", markSelectionDirty);
+  $("#count").addEventListener("change", () => {
+    normalizeCountInput();
+    markSelectionDirty();
+  });
+  $("#pasteText").addEventListener("input", markSelectionDirty);
+  $("#sameVerse").addEventListener("change", markSelectionDirty);
+  $("#fillPage").addEventListener("change", markSelectionDirty);
+  $("#footerText").addEventListener("input", renderCurrentSelection);
 
   // --- Imagem de fundo própria ---
-  $("#bgImage").addEventListener("change", (e) => {
+  $("#bgImage").addEventListener("change", async (e) => {
     const file = e.target.files && e.target.files[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      state.customImage = reader.result;
-      ensureCustomOption();
-      $("#template").value = "custom";
-      $("#bgImageClear").style.display = "";
-      $("#overlayField").style.display = "";
-      generate();
-    };
-    reader.readAsDataURL(file);
+    await applyBackgroundImage(file);
   });
   $("#bgImageClear").addEventListener("click", () => {
+    state.imageLoadToken++;
     state.customImage = null;
     $("#bgImage").value = "";
+    $("#bgImage").setAttribute("aria-busy", "false");
+    setImageError("");
     removeCustomOption();
     $("#template").value = DEFAULT_TEMPLATE_ID;
-    $("#bgImageClear").style.display = "none";
-    $("#overlayField").style.display = "none";
-    generate();
+    $("#bgImageClear").hidden = true;
+    $("#overlayField").hidden = true;
+    syncTemplateChooser();
+    renderCurrentSelection();
   });
   $("#overlay").addEventListener("input", (e) => {
     $("#overlayVal").textContent = Math.round(e.target.value * 100) + "%";
-    generate();
+    syncTemplateChooser();
+    renderCurrentSelection();
   });
   $("#template").addEventListener("change", () => {
-    $("#overlayField").style.display =
-      $("#template").value === "custom" && state.customImage ? "" : "none";
-    generate();
+    $("#overlayField").hidden = !(
+      $("#template").value === "custom" && state.customImage
+    );
+    syncTemplateChooser();
+    renderCurrentSelection();
   });
 
-  $("#btnGenerate").addEventListener("click", generate);
-  $("#btnPrint").addEventListener("click", () => window.print());
+  $("#btnGenerate").addEventListener("click", refreshSelection);
+  $("#btnPrint").addEventListener("click", printWithPreflight);
+  $("#confirmPrint").addEventListener("click", confirmPrint);
 
   // --- Zoom do preview ---
   $("#zoomIn").addEventListener("click", () => applyZoom(state.zoom + 0.1));
   $("#zoomOut").addEventListener("click", () => applyZoom(state.zoom - 0.1));
   $("#zoomFit").addEventListener("click", zoomToFit);
+  window.addEventListener(
+    "resize",
+    debounce(() => {
+      if (state.fitZoom) zoomToFit();
+    }, 120)
+  );
 
-  generate();
-  zoomToFit();
+  refreshSelection();
+  requestAnimationFrame(zoomToFit);
 }
 
 document.addEventListener("DOMContentLoaded", init);

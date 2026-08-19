@@ -4,29 +4,43 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Monte folhas A4 de papelzinhos evangelísticos com versículos da Bíblia (ACF), prontos para imprimir e recortar." />
-  <meta name="theme-color" content="#111827" />
+  <meta name="theme-color" content="#122923" />
   <title>Papelzinhos Evangelísticos</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23152a25'/%3E%3Cpath d='M13 17c8-3 14-1 19 4 5-5 11-7 19-4v32c-8-2-14 0-19 5-5-5-11-7-19-5z' fill='%23f5ead7'/%3E%3Cpath d='M32 21v33' stroke='%23d27d56' stroke-width='3'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="src/styles/main.css" />
   <link rel="stylesheet" href="src/styles/layout.css" />
   <link rel="stylesheet" href="src/styles/templates.css" />
   <link rel="stylesheet" href="src/styles/print.css" />
 </head>
 <body>
+  <a class="skip-link" href="#preview">Pular para a prévia</a>
   <aside class="sidebar" id="sidebar">
-    <h1>📖 Papelzinhos Evangelísticos</h1>
-    <p class="subtitle">Monte uma folha A4 cheia de versículos para imprimir e recortar.</p>
+    <header class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" focusable="false">
+          <path d="M8 12c6-2 11-.6 16 3.5C29 11.4 34 10 40 12v25c-6-1.5-11 0-16 4-5-4-10-5.5-16-4z" />
+          <path d="M24 15.5V41" />
+        </svg>
+      </span>
+      <span>
+        <span class="eyebrow">Ateliê de impressão</span>
+        <h1>Papelzinhos<br />Evangelísticos</h1>
+      </span>
+    </header>
+    <p class="subtitle">Versículos prontos para imprimir, recortar e compartilhar.</p>
+    <a class="mobile-preview-link" href="#preview">Ver prévia da folha <span aria-hidden="true">↓</span></a>
 
-    <section class="panel">
-      <h2>1. Versículos</h2>
+    <section class="panel" aria-labelledby="step-verses">
+      <h2 id="step-verses"><span>01</span> Versículos</h2>
       <div class="field">
-        <label>Como escolher</label>
-        <div class="radios">
+        <fieldset class="mode-fieldset">
+          <legend>Como escolher</legend>
+          <div class="radios">
           <label><input type="radio" name="mode" value="random" checked /> Aleatório</label>
           <label><input type="radio" name="mode" value="manual" /> Escolher</label>
           <label><input type="radio" name="mode" value="paste" /> Colar texto</label>
-          <label><input type="radio" name="mode" value="generate" /> Gerar por tema</label>
-        </div>
+          </div>
+        </fieldset>
       </div>
 
       <div class="field mode-block" data-mode="random generate">
@@ -36,9 +50,9 @@
 
       <div class="field mode-block" data-mode="manual">
         <label for="search">Buscar versículo</label>
-        <input type="text" id="search" placeholder="ex.: João 3:16 ou amor" />
-        <div id="searchResults" class="search-results"></div>
-        <div id="picked" class="picked"></div>
+        <input type="search" id="search" placeholder="ex.: João 3:16 ou amor" autocomplete="off" aria-controls="searchResults" aria-expanded="false" />
+        <div id="searchResults" class="search-results" aria-live="polite"></div>
+        <div id="picked" class="picked" aria-label="Versículos escolhidos"></div>
       </div>
 
       <div class="field mode-block" data-mode="paste">
@@ -48,80 +62,148 @@
 
       <div class="field mode-block" data-mode="random generate">
         <label for="count">Quantos papelzinhos</label>
-        <input type="number" id="count" min="0" max="120" value="0" />
-        <small class="hint">0 = preencher a folha automaticamente</small>
+        <input type="number" id="count" min="0" max="120" step="1" inputmode="numeric" value="0" aria-describedby="countHint" />
+        <small class="hint" id="countHint">Use 0 para preencher uma folha automaticamente. Máximo: 120.</small>
       </div>
 
       <div class="field mode-block" data-mode="random generate">
-        <label class="check"><input type="checkbox" id="sameVerse" /> Mesmo versículo na folha toda</label>
-        <small class="hint">Sorteia um só versículo e repete em todos os papelzinhos (bom para campanhas).</small>
+        <label class="check"><input type="checkbox" id="sameVerse" aria-describedby="sameVerseHint" /> Mesmo versículo na folha toda</label>
+        <small class="hint" id="sameVerseHint">Sorteia um só versículo e repete em todos os papelzinhos (bom para campanhas).</small>
       </div>
 
       <div class="field mode-block" data-mode="manual paste">
-        <label class="check"><input type="checkbox" id="fillPage" /> Completar a folha repetindo</label>
-        <small class="hint">Repete os versículos escolhidos até fechar a última folha A4.</small>
+        <label class="check"><input type="checkbox" id="fillPage" aria-describedby="fillPageHint" /> Completar a folha repetindo</label>
+        <small class="hint" id="fillPageHint">Repete os versículos escolhidos até fechar a última folha A4.</small>
       </div>
     </section>
 
-    <section class="panel">
-      <h2>2. Tamanho</h2>
+    <section class="panel" aria-labelledby="step-size">
+      <h2 id="step-size"><span>02</span> Tamanho</h2>
       <div class="field">
         <label for="size">Tamanho do papelzinho</label>
         <select id="size"></select>
       </div>
       <div class="field">
         <label for="fontScale">Tamanho da fonte: <span id="fontScaleVal">100%</span></label>
-        <input type="range" id="fontScale" min="0.6" max="1.6" step="0.05" value="1" />
+        <input type="range" id="fontScale" min="0.6" max="1.6" step="0.05" value="1" aria-describedby="fontScaleHint" />
+        <small class="hint" id="fontScaleHint">O texto ainda é reduzido automaticamente se precisar caber.</small>
       </div>
     </section>
 
-    <section class="panel">
-      <h2>3. Arte de fundo</h2>
-      <div class="field">
-        <label for="template">Template</label>
-        <select id="template"></select>
+    <section class="panel" aria-labelledby="step-art">
+      <h2 id="step-art"><span>03</span> Arte de fundo</h2>
+      <div class="field template-field" id="templateField">
+        <div class="template-select-fallback">
+          <label for="template">Template</label>
+          <select id="template"></select>
+        </div>
+        <button id="templateChooserButton" class="template-chooser-button" type="button" aria-haspopup="dialog" aria-controls="templateDialog" hidden>
+          <span class="template-active-preview" id="selectedTemplatePreview" aria-hidden="true"></span>
+          <span class="template-active-copy">
+            <small>Arte selecionada</small>
+            <strong id="selectedTemplateName">Liso (branco)</strong>
+            <span>Ver os 22 modelos</span>
+          </span>
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6" /></svg>
+        </button>
       </div>
       <div class="field">
         <label for="bgImage">Ou use sua própria imagem de fundo</label>
-        <input type="file" id="bgImage" accept="image/*" />
-        <button id="bgImageClear" type="button" style="display:none; margin-top:6px;">Remover imagem</button>
+        <input type="file" id="bgImage" accept="image/*" aria-describedby="bgImageHint bgImageError" />
+        <small class="hint" id="bgImageHint">PNG, JPG, WebP ou outra imagem de até 10 MB e 32 megapixels.</small>
+        <p class="field-error" id="bgImageError" role="alert" aria-live="assertive" hidden></p>
+        <button id="bgImageClear" class="secondary compact" type="button" hidden>Remover imagem</button>
       </div>
-      <div class="field" id="overlayField" style="display:none">
+      <div class="field" id="overlayField" hidden>
         <label for="overlay">Clareador do fundo (legibilidade): <span id="overlayVal">35%</span></label>
         <input type="range" id="overlay" min="0" max="0.85" step="0.05" value="0.35" />
       </div>
     </section>
 
-    <section class="panel">
-      <h2>4. Personalizar (opcional)</h2>
+    <section class="panel" aria-labelledby="step-personalize">
+      <h2 id="step-personalize"><span>04</span> Personalizar <small>opcional</small></h2>
       <div class="field">
         <label for="footerText">Rodapé dos papelzinhos (igreja / contato)</label>
-        <input type="text" id="footerText" maxlength="80" placeholder="ex.: Igreja Batista Central · (91) 99999-9999" />
-        <small class="hint">Aparece em letra pequena na base de cada papelzinho.</small>
+        <input type="text" id="footerText" maxlength="80" placeholder="ex.: Igreja Batista Central · (91) 99999-9999" aria-describedby="footerHint" />
+        <small class="hint" id="footerHint">Aparece em letra pequena na base de cada papelzinho.</small>
       </div>
     </section>
 
     <div class="actions">
-      <button id="btnGenerate" class="primary">Gerar / Atualizar</button>
-      <button id="btnPrint">🖨️ Imprimir / PDF</button>
+      <button id="btnGenerate" class="secondary" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M6.1 8.5A7 7 0 0 1 18.5 6L20 7M4 17l1.5 1A7 7 0 0 0 18 15.5" /></svg>
+        <span>Sortear novos</span>
+      </button>
+      <button id="btnPrint" class="primary" type="button">
+        <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 8V3h10v5M7 17H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M7 14h10v7H7z" /><path d="M17.5 11h.01" /></svg>
+        <span>Imprimir / PDF</span>
+      </button>
     </div>
-    <p class="footnote">Versão: Almeida Corrigida Fiel (ACF)</p>
+    <p class="footnote">Texto bíblico: Almeida Corrigida Fiel (ACF)</p>
   </aside>
 
-  <main class="preview" id="preview">
+  <main class="preview" id="preview" aria-labelledby="preview-title">
+    <h2 id="preview-title" class="sr-only">Prévia das folhas A4</h2>
     <div class="preview-toolbar">
-      <span id="sheetInfo" class="sheet-info"></span>
-      <div class="zoom-controls">
+      <span id="sheetInfo" class="sheet-info" aria-live="polite"></span>
+      <div class="zoom-controls" role="group" aria-label="Zoom da prévia">
         <button id="zoomOut" type="button" title="Diminuir zoom" aria-label="Diminuir zoom">−</button>
-        <span id="zoomVal" class="zoom-val">100%</span>
+        <output id="zoomVal" class="zoom-val" aria-live="polite">100%</output>
         <button id="zoomIn" type="button" title="Aumentar zoom" aria-label="Aumentar zoom">+</button>
-        <button id="zoomFit" type="button" title="Ajustar à largura da tela">Ajustar</button>
+        <button id="zoomFit" type="button" title="Ajustar à largura da tela" aria-label="Ajustar prévia à largura">Ajustar</button>
       </div>
     </div>
+    <div id="previewStatus" class="preview-status" role="status" aria-live="assertive" tabindex="-1" hidden></div>
     <div class="preview-scroll" id="previewScroll">
       <div id="sheetContainer" class="sheet-container"></div>
     </div>
   </main>
+
+  <dialog id="templateDialog" class="template-dialog" aria-labelledby="templateDialogTitle" aria-describedby="templateDialogDescription">
+    <form method="dialog">
+      <header class="template-dialog-header">
+        <div>
+          <span class="eyebrow">Galeria de artes</span>
+          <h2 id="templateDialogTitle">Escolha o fundo</h2>
+          <p id="templateDialogDescription">Use as setas para explorar. Clique ou pressione Enter para aplicar.</p>
+        </div>
+        <button class="dialog-icon-close" type="submit" value="cancel" aria-label="Fechar galeria">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
+        </button>
+      </header>
+      <div id="templateGallery" class="template-gallery" role="radiogroup" aria-label="Modelos de arte de fundo"></div>
+      <footer class="template-dialog-footer">
+        <span><strong id="galleryTemplateName">Liso (branco)</strong> selecionado</span>
+        <button class="dialog-cancel" type="submit" value="done">Concluir</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="printDialog" class="print-dialog" aria-labelledby="printDialogTitle" aria-describedby="printDialogDescription">
+    <form method="dialog">
+      <div class="dialog-heading">
+        <span class="dialog-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 15h12v7H6z" /></svg>
+        </span>
+        <div>
+          <span class="eyebrow">Conferência final</span>
+          <h2 id="printDialogTitle">Prepare a impressão</h2>
+        </div>
+      </div>
+      <p id="printDialogDescription">Na próxima janela, confira estas opções antes de imprimir ou salvar o PDF.</p>
+      <p class="print-summary" id="printDialogSummary"></p>
+      <ul class="print-checklist" aria-label="Configurações recomendadas">
+        <li><span aria-hidden="true">✓</span><div><strong>Papel A4</strong><small>210 × 297 mm</small></div></li>
+        <li><span aria-hidden="true">✓</span><div><strong>Escala 100%</strong><small>Não use “Ajustar à página”</small></div></li>
+        <li><span aria-hidden="true">✓</span><div><strong>Margens: nenhuma</strong><small>Ou a opção “sem bordas”</small></div></li>
+        <li><span aria-hidden="true">✓</span><div><strong>Gráficos de fundo</strong><small>Ative para imprimir a arte escolhida</small></div></li>
+      </ul>
+      <div class="dialog-actions">
+        <button class="dialog-cancel" type="submit" value="cancel">Cancelar</button>
+        <button class="primary" id="confirmPrint" type="button">Abrir impressão</button>
+      </div>
+    </form>
+  </dialog>
 
   <script type="module" src="src/app.js"></script>
 </body>
