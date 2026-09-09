@@ -161,7 +161,7 @@ function autofitTract(tract) {
 /**
  * Renderiza dentro de containerEl uma ou mais páginas A4 com os papeizinhos.
  * @param {HTMLElement} containerEl
- * @param {{verses: Array, sizeId: string, template: object, fontScale?: number, footer?: string}} opts
+ * @param {{verses: Array, sizeId: string, template?: object, templates?: Array, fontScale?: number, footer?: string, logo?: string}} opts
  */
 export function renderSheet(containerEl, { verses, sizeId, template, templates = [], fontScale = 1, footer = "", logo = "" } = {}) {
   if (!containerEl) return;

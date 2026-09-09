@@ -57,8 +57,13 @@ export const DEFAULT_SIZE_ID = "...";
  * - Desenha marcas de corte entre os papeizinhos.
  * - footer (opcional): linha de rodapé (igreja/contato) na base de cada papelzinho.
  */
-export function renderSheet(containerEl, { verses, sizeId, template, fontScale = 1, footer = "" });
+export function renderSheet(containerEl, { verses, sizeId, template, templates = [], fontScale = 1, footer = "", logo = "" });
 ```
+`templates` é uma lista opcional de artes: quando preenchida, alterna as artes pela posição
+global do papelzinho, continuando entre páginas. Sem ela, `template` mantém o comportamento
+anterior. `logo` é uma data URL opcional, exibida sem recorte acima do rodapé e incluída na
+área medida pelo auto-ajuste de fonte.
+
 Cada papelzinho deve conter o texto (`.tract-text`) e a referência (`.tract-ref`), e um
 contêiner de fundo (`.tract-bg`) onde o template aplica a arte. `print.css` garante A4 fiel
 (`@page { size: A4; margin: 0 }`) e que só a folha apareça na impressão.

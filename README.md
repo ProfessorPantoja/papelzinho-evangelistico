@@ -14,9 +14,10 @@ python3 -m http.server 8000
 ```
 
 1. Escolha os versículos (aleatório com tema opcional, seleção manual ou texto colado).
-2. Escolha o tamanho do papelzinho e a arte de fundo na galeria visual (22 templates ou sua própria imagem).
-3. Ajuste os extras: mesmo versículo na folha toda, completar folha repetindo, rodapé com
-   nome/contato da igreja.
+2. Escolha o tamanho do papelzinho e a arte de fundo na galeria visual. Ative **Alternar várias
+   artes na folha** para marcar mais de uma; **Embaralhar ordem das artes** muda a sequência.
+3. Ajuste os extras: mesmo versículo na folha toda, completar folha repetindo, logo e rodapé
+   com nome/contato da igreja. O rodapé ADMPF começa marcado em cada visita.
 4. Confira no preview (zoom −/+/Ajustar; a barra mostra capacidade por folha e nº de folhas).
 5. Clique em **Imprimir / PDF**, siga a conferência final e salve como PDF em tamanho A4.
 
@@ -28,6 +29,15 @@ também fica bloqueado se houver alterações pendentes ou algum texto cortado.
 
 Suas preferências ficam salvas no navegador (localStorage) e voltam na próxima visita.
 Valores salvos inválidos são ignorados ou limitados ao intervalo aceito pelo editor.
+As artes escolhidas também são lembradas. Imagens enviadas (fundo e logo) precisam ser
+escolhidas novamente ao reabrir a página; o rodapé padrão sempre começa ativo.
+
+Na busca manual, os versículos adicionados saem dos resultados e aparecem na lista de
+escolhidos. Use **×** para remover: o versículo volta aos resultados da busca atual.
+
+O campo de imagem mostra as medidas, a proporção e uma sugestão de resolução a 300 dpi
+para o tamanho escolhido. Fundos preenchem o papelzinho e podem ter as bordas recortadas
+quando a proporção é diferente. O logo usa uma área de até 26 × 10 mm, sem recorte.
 
 ## Funcionalidades
 - **3 modos de seleção**: aleatório com 17 temas, busca manual e colar texto.
@@ -36,12 +46,13 @@ Valores salvos inválidos são ignorados ou limitados ao intervalo aceito pelo e
 - **Galeria acessível com 22 artes de fundo** em CSS/SVG (leves, imprimem nítido e gastam pouca
   tinta) + upload validado de imagem própria com clareador de legibilidade.
 - **Marcas de corte** nos cantos para guiar o recorte.
-- **Rodapé padrão da Igreja ADMPF** com campo separado para texto extra.
+- **Rodapé padrão da Igreja ADMPF**, ativo em cada visita, com campo separado para texto extra e upload de logo.
 - **Preflight de impressão** com detecção de overflow, resumo de páginas e instruções para A4.
 - **Impressão fiel A4** via CSS Print (`@page size: A4`).
 
 ## Estrutura (módulos independentes)
-- `src/data/` + `src/selection.js` — banco de versículos ACF e lógica de seleção.
+- `src/data/verses.js` + `src/selection.js` — 112 versículos ACF em uma lista JavaScript
+  exportada como `VERSES` (campos `id`, `ref`, `text`, `themes`) e lógica de seleção. Não há arquivo JSON separado.
 - `src/pagination.js` — preenchimento das folhas a partir da seleção aplicada.
 - `src/settings.js` — validação das preferências restauradas do navegador.
 - `src/layout.js` — diagramação da folha A4 (grade, marcas de corte, auto-fit, rodapé).
@@ -64,3 +75,6 @@ sem adicionar dependências ao projeto. A conferência visual e de impressão é
 
 Veja o [relatório de melhorias de 09/09/2026](docs/relatorio-melhorias-2026-09-09.md)
 para os commits e as instruções de reversão.
+
+Os [refinamentos de seleção, artes e identificação da igreja](docs/refinamentos-ux-2026-09-09.md)
+incluem um checklist curto para conferência manual. Essa rodada não teve execução de testes.
