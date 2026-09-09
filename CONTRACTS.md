@@ -58,12 +58,18 @@ export const DEFAULT_SIZE_ID = "...";
  * - Desenha marcas de corte entre os papeizinhos.
  * - footer (opcional): linha de rodapé (igreja/contato) na base de cada papelzinho.
  */
-export function renderSheet(containerEl, { verses, sizeId, template, templates = [], fontScale = 1, footer = "", logo = "" });
+export function renderSheet(containerEl, { verses, sizeId, template, templates = [], fontScale = 1, footer = "", logo = "", fontOverrides = new Map() });
+export function setTractFontSize(tract, fontPt = null);
 ```
 `templates` é uma lista opcional de artes: quando preenchida, alterna as artes pela posição
 global do papelzinho, continuando entre páginas. Sem ela, `template` mantém o comportamento
 anterior. `logo` é uma data URL opcional, exibida sem recorte acima do rodapé e incluída na
 área medida pelo auto-ajuste de fonte.
+
+`fontOverrides` mapeia a posição global (base zero) da cópia para uma fonte em pt.
+`setTractFontSize` altera somente aquele elemento; `null` restaura o auto-ajuste.
+A revisão mede apenas os elementos dentro de `sheetContainer`, nunca as amostras do diálogo.
+As exceções pertencem à seleção aplicada e são redefinidas ao aplicar uma seleção novamente.
 
 Cada papelzinho deve conter o texto (`.tract-text`) e a referência (`.tract-ref`), e um
 contêiner de fundo (`.tract-bg`) onde o template aplica a arte. `print.css` garante A4 fiel

@@ -4,6 +4,7 @@ import { listThemes, VERSES } from "./data/verses.js";
 import { arrangeVerses } from "./pagination.js";
 import { sanitizeSettings } from "./settings.js";
 import { initVerseLibrary } from "./verse-library.js";
+import { initTractReview } from "./tract-review.js";
 import {
   getRandomVerses,
   searchVerses,
@@ -15,6 +16,8 @@ import {
   DEFAULT_SIZE_ID,
   renderSheet,
   capacityPerPage,
+  MANUAL_FONT,
+  setTractFontSize,
 } from "./layout.js";
 import {
   TEMPLATES,
@@ -56,6 +59,8 @@ const state = {
   appliedSelection: { verses: [], autoFill: false, fillPage: false },
   selectionDirty: false,
   overflowCount: 0,
+  smallFontCount: 0,
+  fontOverrides: new Map(), // Exceções por posição na seleção aplicada; somente nesta sessão.
   layoutPending: false,
   layoutVersion: 0,
   imagePending: false,
@@ -64,6 +69,8 @@ const state = {
   logoPending: false,
   logoLoadToken: 0,
 };
+let tractReview;
+const getTracts = () => [...sheetContainer.querySelectorAll(".tract")];
 
 // Largura de uma folha A4 em px CSS (210mm a 96dpi ≈ 793.7px).
 const A4_WIDTH_PX = 794;
@@ -699,6 +706,8 @@ function markSelectionDirty() {
 }
 
 function refreshSelection() {
+  tractReview?.close();
+  state.fontOverrides.clear();
   const randomMode = ["random", "generate"].includes(state.mode);
   state.appliedSelection = {
     verses: collectVerses(),
@@ -731,6 +740,11 @@ function syncPrintAvailability() {
   button.setAttribute("aria-busy", String(state.layoutPending || state.imagePending || state.logoPending));
   button.dataset.disabledReason = readiness.reason;
   document.documentElement.dataset.printReadiness = readiness.reason;
+  const reviewButton = $("#reviewTexts");
+  reviewButton.disabled = !state.currentVerses.length || state.selectionDirty || state.layoutPending || state.imagePending || state.logoPending;
+  const count = getTracts().filter((tract) => tract.classList.contains("is-overflowing") || tract.classList.contains("has-small-font")).length;
+  reviewButton.textContent = count ? `Revisar ${count} ${count === 1 ? "texto" : "textos"}` : "Revisar textos";
+  tractReview?.update();
   return readiness;
 }
 
@@ -741,14 +755,20 @@ function setPrintPending(pending) {
 
 function measureLayoutStatus() {
   let overflowCount = 0;
-  document.querySelectorAll(".tract").forEach((tract) => {
+  let smallFontCount = 0;
+  getTracts().forEach((tract) => {
     const content = tract.querySelector(".tract-content");
     const overflows = Boolean(content && measurementsOverflow(content));
     tract.classList.toggle("is-overflowing", overflows);
+    const fontPt = parseFloat(tract.querySelector(".tract-text").style.fontSize);
+    const small = Number.isFinite(fontPt) && fontPt < MANUAL_FONT.reviewBelowPt;
+    tract.classList.toggle("has-small-font", small);
+    if (small) smallFontCount++;
     if (overflows) overflowCount++;
   });
 
   state.overflowCount = overflowCount;
+  state.smallFontCount = smallFontCount;
   sheetContainer.dataset.overflowCount = String(overflowCount);
   document.documentElement.dataset.layoutStatus = overflowCount ? "overflow" : "ready";
   setPrintPending(false);
@@ -765,13 +785,18 @@ function updatePreviewStatus() {
   } else if (overflowCount) {
     const plural = overflowCount === 1 ? "papelzinho está" : "papeizinhos estão";
     setPreviewStatus(
-      `${overflowCount} ${plural} com texto cortado. Reduza a fonte, use um tamanho maior ou encurte o rodapé. A impressão foi bloqueada.`,
+      `${overflowCount} ${plural} com texto cortado. Clique em "Revisar textos" para ajustar cada um. A impressão foi bloqueada.`,
       "warning"
     );
   } else if (state.selectionDirty) {
     setPreviewStatus(
       "Há alterações de seleção pendentes. Clique em \"Aplicar alterações\" antes de imprimir.",
       "pending"
+    );
+  } else if (state.smallFontCount) {
+    setPreviewStatus(
+      `${state.smallFontCount} ${state.smallFontCount === 1 ? "papelzinho com fonte" : "papeizinhos com fonte"} abaixo de 7 pt. Use "Revisar textos" para conferir a leitura. A impressão está disponível.`,
+      "warning"
     );
   } else if (state.currentVerses.length) {
     setPreviewStatus("Prévia conferida e pronta para imprimir.", "ready");
@@ -802,6 +827,7 @@ function renderCurrentSelection() {
     sheetContainer.innerHTML =
       '<div class="empty">Nenhum versículo selecionado. Escolha uma opção e clique em "Gerar".</div>';
     state.overflowCount = 0;
+    state.smallFontCount = 0;
     setPrintPending(false);
     setPreviewStatus("Adicione ao menos um versículo para montar a folha.", "checking");
     saveSettings();
@@ -815,7 +841,7 @@ function renderCurrentSelection() {
     $("#footerText").value
   );
   try {
-    renderSheet(sheetContainer, { verses, sizeId, templates, fontScale, footer, logo: state.churchLogo });
+    renderSheet(sheetContainer, { verses, sizeId, templates, fontScale, footer, logo: state.churchLogo, fontOverrides: state.fontOverrides });
     scheduleLayoutPreflight();
   } catch (e) {
     console.error("Erro no layout:", e);
@@ -909,6 +935,20 @@ function init() {
   applyModeVisibility();
   renderPicked();
   initTemplateChooser();
+  tractReview = initTractReview({
+    getTracts,
+    isPending: () => state.selectionDirty || state.layoutPending || state.imagePending || state.logoPending,
+    onFontChange: (index, fontPt) => {
+      const tract = getTracts().find((item) => Number(item.dataset.tractIndex) === index);
+      if (!tract) return;
+      state.layoutVersion++;
+      setTractFontSize(tract, fontPt);
+      if (fontPt === null) state.fontOverrides.delete(index);
+      else state.fontOverrides.set(index, tract._manualFontPt);
+      // Mede a folha real sem reconstruir ou alterar os demais papeizinhos.
+      measureLayoutStatus();
+    },
+  });
   initVerseLibrary({
     getPicked: () => state.picked,
     toggleVerse: (verse) => {

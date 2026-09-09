@@ -36,6 +36,18 @@ const CROP_STYLE = "marks"; // "marks" | "dashed"
 
 // Auto-fit: limites de tamanho de fonte (em pt) para o corpo do versículo.
 const AUTOFIT = { maxPt: 13, minPt: 5.5, stepPt: 0.5 };
+export const MANUAL_FONT = Object.freeze({ minPt: 3, maxPt: 24, stepPt: 0.5, reviewBelowPt: 7 });
+
+/** Ajusta somente esta cópia. null devolve o controle ao auto-ajuste. */
+export function setTractFontSize(tract, fontPt = null) {
+  if (!tract) return;
+  const manual = fontPt !== null && Number.isFinite(Number(fontPt));
+  tract._manualFontPt = manual
+    ? Math.min(MANUAL_FONT.maxPt, Math.max(MANUAL_FONT.minPt, Number(fontPt)))
+    : null;
+  tract.dataset.manualFont = String(manual);
+  autofitTract(tract);
+}
 
 /** Resolve o preset de tamanho a partir do id (com fallback seguro). */
 function resolveSize(sizeId) {
@@ -138,6 +150,10 @@ function autofitTract(tract) {
   // .tract-content é a área onde o texto pode ocupar (já com padding).
   const content = tract.querySelector(".tract-content");
   if (!text || !content) return;
+  if (Number.isFinite(tract._manualFontPt)) {
+    text.style.fontSize = tract._manualFontPt + "pt";
+    return;
+  }
 
   // Começa do tamanho máximo (multiplicado pelo fontScale do usuário) e vai
   // diminuindo enquanto o conteúdo transbordar a célula.
@@ -161,9 +177,9 @@ function autofitTract(tract) {
 /**
  * Renderiza dentro de containerEl uma ou mais páginas A4 com os papeizinhos.
  * @param {HTMLElement} containerEl
- * @param {{verses: Array, sizeId: string, template?: object, templates?: Array, fontScale?: number, footer?: string, logo?: string}} opts
+ * @param {{verses: Array, sizeId: string, template?: object, templates?: Array, fontScale?: number, footer?: string, logo?: string, fontOverrides?: Map<number, number>}} opts
  */
-export function renderSheet(containerEl, { verses, sizeId, template, templates = [], fontScale = 1, footer = "", logo = "" } = {}) {
+export function renderSheet(containerEl, { verses, sizeId, template, templates = [], fontScale = 1, footer = "", logo = "", fontOverrides = new Map() } = {}) {
   if (!containerEl) return;
   containerEl.innerHTML = "";
 
@@ -193,6 +209,10 @@ export function renderSheet(containerEl, { verses, sizeId, template, templates =
     for (let i = 0; i < perPage && idx < list.length; i++, idx++) {
       const art = templates.length ? templates[idx % templates.length] : template;
       const tract = buildTract(list[idx], size, fontScale, art, footer, logo);
+      tract.dataset.tractIndex = String(idx);
+      tract.dataset.verseRef = list[idx].ref || "Texto colado";
+      tract._manualFontPt = fontOverrides.has(idx) ? fontOverrides.get(idx) : null;
+      tract.dataset.manualFont = String(fontOverrides.has(idx));
       grid.appendChild(tract);
       tracts.push(tract);
     }

@@ -12,6 +12,7 @@
   <link rel="stylesheet" href="src/styles/templates.css" />
   <link rel="stylesheet" href="src/styles/print.css" />
   <link rel="stylesheet" href="src/styles/verse-library.css" />
+  <link rel="stylesheet" href="src/styles/tract-review.css" />
 </head>
 <body>
   <a class="skip-link" href="#preview">Pular para a prévia</a>
@@ -169,6 +170,7 @@
     <h2 id="preview-title" class="sr-only">Prévia das folhas A4</h2>
     <div class="preview-toolbar">
       <span id="sheetInfo" class="sheet-info" aria-live="polite"></span>
+      <button id="reviewTexts" type="button" aria-haspopup="dialog" aria-controls="tractReview" disabled>Revisar textos</button>
       <div class="zoom-controls" role="group" aria-label="Zoom da prévia">
         <button id="zoomOut" type="button" title="Diminuir zoom" aria-label="Diminuir zoom">−</button>
         <output id="zoomVal" class="zoom-val" aria-live="polite">100%</output>
@@ -254,6 +256,33 @@
       <a href="https://www.biblias.com.br/direitos-autorais" target="_blank" rel="noopener noreferrer">Condições de citação ↗</a></small>
       <button id="libraryUse" type="button" class="primary">Usar escolhidos na folha</button>
     </footer>
+  </dialog>
+
+  <dialog id="tractReview" class="tract-review" aria-labelledby="reviewTitle" aria-describedby="reviewDescription">
+    <header class="review-header">
+      <div><span class="eyebrow">Ajuste só o que precisa</span><h2 id="reviewTitle">Revisar papeizinhos</h2></div>
+      <button id="reviewClose" type="button">Concluir revisão</button>
+    </header>
+    <p id="reviewDescription">Cada ajuste vale só para esta cópia, mesmo que o versículo apareça em outros papeizinhos.</p>
+    <div class="review-body">
+      <div class="review-controls">
+        <label class="review-check"><input id="reviewOnlyAttention" type="checkbox" /> Só os marcados para revisão</label>
+        <label for="reviewPick">Papelzinho</label>
+        <select id="reviewPick"></select>
+        <button id="reviewNext" type="button">Próximo da lista →</button>
+        <label for="reviewFont">Fonte deste papelzinho (pt)</label>
+        <div class="review-font-controls">
+          <button id="reviewFontLess" type="button" aria-label="Diminuir a fonte deste papelzinho">−</button>
+          <input id="reviewFont" type="number" min="3" max="24" step="0.5" inputmode="decimal" />
+          <button id="reviewFontMore" type="button" aria-label="Aumentar a fonte deste papelzinho">+</button>
+        </div>
+        <button id="reviewFontReset" type="button">Restaurar automático</button>
+        <p id="reviewMessage" class="review-message" role="status"></p>
+        <small>Os ajustes ficam nesta seleção. Sortear ou aplicar uma nova seleção restaura o automático. Trocar arte, logo, rodapé ou tamanho mantém suas exceções.</small>
+        <small>Se a letra ficar pequena demais, use um papelzinho maior ou reduza o rodapé.</small>
+      </div>
+      <div class="review-paper"><div id="reviewSample" class="review-sample" aria-label="Amostra do papelzinho selecionado"></div></div>
+    </div>
   </dialog>
 
   <script type="module" src="src/app.js"></script>

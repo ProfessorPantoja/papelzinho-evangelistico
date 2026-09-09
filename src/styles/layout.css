@@ -74,6 +74,7 @@
 }
 
 .tract-text {
+  flex: 0 0 auto; /* Mantém a altura real do texto para detectar cortes no auto-ajuste. */
   margin: 0;
   font-family: Georgia, "Times New Roman", "Liberation Serif", serif;
   line-height: 1.32;

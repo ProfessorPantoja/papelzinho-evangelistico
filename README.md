@@ -29,6 +29,8 @@ python3 -m http.server 8000
    O botão **Abrir painel de versículos** abre uma tela ampla para ler o acervo inteiro,
    filtrar por livro/tema/palavra e marcar textos. Use **Usar escolhidos na folha** para
    retornar ao editor no modo manual. **Só escolhidos** facilita revisar sua seleção.
+   Em **Ordenar**, use **Maiores primeiro** ou **Menores primeiro** para organizar a
+   consulta pela quantidade de caracteres, sem mudar a sequência dos escolhidos.
 2. Escolha o tamanho do papelzinho e a arte de fundo na galeria visual. Ative **Alternar várias
    artes na folha** para marcar mais de uma; **Embaralhar ordem das artes** muda a sequência.
 3. Ajuste os extras: mesmo versículo na folha toda, completar folha repetindo, logo e rodapé
@@ -41,6 +43,19 @@ Ao trocar o tamanho, o modo automático continua preenchendo uma folha, e “Com
 repetindo” recalcula as cópias a partir dos textos escolhidos, sem novo sorteio.
 O botão de impressão aguarda o carregamento da imagem e a conferência da diagramação;
 também fica bloqueado se houver alterações pendentes ou algum texto cortado.
+
+**Revisar textos**, na barra da prévia, reúne os papeizinhos cortados ou com fonte abaixo
+de 7 pt. Escolha pela folha, número e referência; use **− / +**, digite o tamanho em pt
+ou clique em **Restaurar automático**. Cada ajuste muda somente aquela cópia, inclusive
+quando há versículos repetidos. Desmarque **Só os marcados para revisão** para acessar
+qualquer papelzinho. Os itens corrigidos continuam na lista da revisão aberta, com o
+estado atualizado, para permitir novos ajustes.
+
+Fontes abaixo de 7 pt geram um aviso de leitura, mas não bloqueiam a impressão; texto
+cortado continua bloqueando. O limite de 7 pt é uma referência para conferência, não
+uma garantia de legibilidade. As exceções de fonte são mantidas ao trocar arte, tamanho,
+logo e rodapé. Sortear ou aplicar uma seleção novamente, ou recarregar a página, restaura
+o automático. O controle geral de fonte continua atuando nas cópias sem ajuste individual.
 
 Suas preferências ficam salvas no navegador (localStorage) e voltam na próxima visita.
 Valores salvos inválidos são ignorados ou limitados ao intervalo aceito pelo editor.
@@ -72,6 +87,7 @@ quando a proporção é diferente. O logo usa uma área de até 26 × 10 mm, sem
 - `src/data/verses.js` + `src/selection.js` — 129 trechos ACF em uma lista JavaScript
   exportada como `VERSES` (campos `id`, `ref`, `text`, `themes` e `context` opcional) e lógica de seleção. Não há arquivo JSON separado.
 - `src/verse-library.js` — painel de leitura e escolha, compartilhando a seleção do editor.
+- `src/tract-review.js` — revisão das cópias da folha e controle individual da fonte.
 - `src/pagination.js` — preenchimento das folhas a partir da seleção aplicada.
 - `src/settings.js` — validação das preferências restauradas do navegador.
 - `src/layout.js` — diagramação da folha A4 (grade, marcas de corte, auto-fit, rodapé).
@@ -105,3 +121,9 @@ a interface nova e a impressão ficam para avaliação manual.
 Texto bíblico: Almeida Corrigida Fiel (ACF), © 1994, 1995, 2007, 2011 Sociedade Bíblica
 Trinitariana do Brasil / Trinitarian Bible Society. Consulte as
 [condições de citação da SBTB](https://www.biblias.com.br/direitos-autorais).
+
+Para conferir a ordenação e os ajustes individuais:
+
+- Ordene por **Maiores primeiro** e escolha alguns textos longos.
+- Em **Revisar textos**, diminua a fonte de uma cópia e confirme que as demais permanecem iguais.
+- Experimente **Restaurar automático** e confira a prévia/PDF antes de imprimir.
