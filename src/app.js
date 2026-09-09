@@ -54,6 +54,8 @@ const state = {
   selectionDirty: false,
   overflowCount: 0,
   layoutPending: false,
+  layoutVersion: 0,
+  imagePending: false,
   imageLoadToken: 0,
 };
 
@@ -245,6 +247,13 @@ function setImageError(message = "") {
   input.setAttribute("aria-invalid", message ? "true" : "false");
 }
 
+function setImagePending(pending) {
+  state.imagePending = pending;
+  $("#bgImage").setAttribute("aria-busy", String(pending));
+  syncPrintAvailability();
+  updatePreviewStatus();
+}
+
 function readImageDimensions(file) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);
@@ -278,14 +287,16 @@ async function applyBackgroundImage(file) {
 
   const metadataError = validateImageFile(file);
   if (metadataError) {
+    setImagePending(false);
     input.value = "";
     setImageError(metadataError);
     return;
   }
 
-  input.setAttribute("aria-busy", "true");
+  setImagePending(true);
   try {
     const dimensions = await readImageDimensions(file);
+    if (token !== state.imageLoadToken) return;
     const dimensionError = validateImageDimensions(dimensions.width, dimensions.height);
     if (dimensionError) throw new Error(dimensionError);
     const dataUrl = await readAsDataUrl(file);
@@ -303,7 +314,7 @@ async function applyBackgroundImage(file) {
     input.value = "";
     setImageError(error.message || "Não foi possível usar esta imagem.");
   } finally {
-    if (token === state.imageLoadToken) input.setAttribute("aria-busy", "false");
+    if (token === state.imageLoadToken) setImagePending(false);
   }
 }
 
@@ -584,9 +595,11 @@ function syncPrintAvailability() {
     hasItems: state.currentVerses.length > 0,
     selectionDirty: state.selectionDirty,
     layoutPending: state.layoutPending,
+    imagePending: state.imagePending,
     overflowCount: state.overflowCount,
   });
   button.disabled = !readiness.ready;
+  button.setAttribute("aria-busy", String(state.layoutPending || state.imagePending));
   button.dataset.disabledReason = readiness.reason;
   document.documentElement.dataset.printReadiness = readiness.reason;
   return readiness;
@@ -594,8 +607,6 @@ function syncPrintAvailability() {
 
 function setPrintPending(pending) {
   state.layoutPending = pending;
-  const button = $("#btnPrint");
-  button.setAttribute("aria-busy", pending ? "true" : "false");
   syncPrintAvailability();
 }
 
@@ -612,7 +623,17 @@ function measureLayoutStatus() {
   sheetContainer.dataset.overflowCount = String(overflowCount);
   document.documentElement.dataset.layoutStatus = overflowCount ? "overflow" : "ready";
   setPrintPending(false);
-  if (overflowCount) {
+  updatePreviewStatus();
+  return overflowCount;
+}
+
+function updatePreviewStatus() {
+  const { overflowCount } = state;
+  if (state.imagePending) {
+    setPreviewStatus("Carregando a imagem de fundo. Aguarde antes de imprimir…", "checking");
+  } else if (state.layoutPending) {
+    setPreviewStatus("Conferindo a diagramação…", "checking");
+  } else if (overflowCount) {
     const plural = overflowCount === 1 ? "papelzinho está" : "papeizinhos estão";
     setPreviewStatus(
       `${overflowCount} ${plural} com texto cortado. Reduza a fonte, use um tamanho maior ou encurte o rodapé. A impressão foi bloqueada.`,
@@ -625,17 +646,22 @@ function measureLayoutStatus() {
     );
   } else if (state.currentVerses.length) {
     setPreviewStatus("Prévia conferida e pronta para imprimir.", "ready");
+  } else {
+    setPreviewStatus("Adicione ao menos um versículo para montar a folha.", "checking");
   }
-  return overflowCount;
 }
 
 function scheduleLayoutPreflight() {
+  const version = state.layoutVersion;
   setPrintPending(true);
-  setPreviewStatus("Conferindo a diagramação…", "checking");
-  requestAnimationFrame(() => requestAnimationFrame(measureLayoutStatus));
+  updatePreviewStatus();
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (version === state.layoutVersion) measureLayoutStatus();
+  }));
 }
 
 function renderCurrentSelection() {
+  state.layoutVersion++;
   state.currentVerses = arrangeVerses(state.appliedSelection.verses, {
     ...state.appliedSelection,
     perPage: capacityPerPage($("#size").value),
@@ -688,6 +714,7 @@ async function printWithPreflight() {
     return;
   }
 
+  const version = state.layoutVersion;
   setPrintPending(true);
   setPreviewStatus("Fazendo a conferência final para impressão…", "checking");
 
@@ -696,13 +723,15 @@ async function printWithPreflight() {
     await new Promise((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(resolve))
     );
-    if (measureLayoutStatus() > 0) {
+    if (version !== state.layoutVersion) return;
+    measureLayoutStatus();
+    if (!syncPrintAvailability().ready) {
       $("#previewStatus").focus({ preventScroll: false });
       return;
     }
     openPrintDialog();
   } finally {
-    setPrintPending(false);
+    if (version === state.layoutVersion) setPrintPending(false);
   }
 }
 
@@ -725,6 +754,7 @@ function openPrintDialog() {
 async function confirmPrint() {
   const dialog = $("#printDialog");
   const button = $("#confirmPrint");
+  const version = state.layoutVersion;
   button.disabled = true;
   button.setAttribute("aria-busy", "true");
   try {
@@ -732,7 +762,9 @@ async function confirmPrint() {
     await new Promise((resolve) =>
       requestAnimationFrame(() => requestAnimationFrame(resolve))
     );
-    if (state.selectionDirty || measureLayoutStatus() > 0) {
+    if (!dialog.open) return;
+    if (version === state.layoutVersion) measureLayoutStatus();
+    if (version !== state.layoutVersion || !syncPrintAvailability().ready) {
       dialog.close();
       $("#previewStatus").focus({ preventScroll: false });
       return;
@@ -792,7 +824,7 @@ function init() {
     state.imageLoadToken++;
     state.customImage = null;
     $("#bgImage").value = "";
-    $("#bgImage").setAttribute("aria-busy", "false");
+    setImagePending(false);
     setImageError("");
     removeCustomOption();
     $("#template").value = DEFAULT_TEMPLATE_ID;
@@ -807,6 +839,12 @@ function init() {
     renderCurrentSelection();
   });
   $("#template").addEventListener("change", () => {
+    // A escolha mais recente prevalece sobre um upload ainda em andamento.
+    if (state.imagePending) {
+      state.imageLoadToken++;
+      $("#bgImage").value = "";
+      setImagePending(false);
+    }
     $("#overlayField").hidden = !(
       $("#template").value === "custom" && state.customImage
     );

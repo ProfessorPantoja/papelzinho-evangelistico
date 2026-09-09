@@ -50,8 +50,20 @@ assert.deepEqual(
   { ready: false, reason: "overflow" }
 );
 assert.deepEqual(
+  getPrintReadiness({ hasItems: true, imagePending: true }),
+  { ready: false, reason: "image-pending" }
+);
+assert.deepEqual(
+  getPrintReadiness({ hasItems: true, layoutPending: true, imagePending: false }),
+  { ready: false, reason: "layout-pending" }
+);
+assert.deepEqual(
+  getPrintReadiness({ hasItems: false }),
+  { ready: false, reason: "empty" }
+);
+assert.deepEqual(
   getPrintReadiness({ hasItems: true, layoutPending: false, overflowCount: 0 }),
   { ready: true, reason: "ready" }
 );
 
-console.log("smoke: 20 verificações aprovadas");
+console.log("smoke: regras de qualidade e prontidão de impressão aprovadas");

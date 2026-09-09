@@ -69,10 +69,12 @@ export function getPrintReadiness({
   hasItems,
   selectionDirty,
   layoutPending,
+  imagePending,
   overflowCount,
 } = {}) {
   if (!hasItems) return { ready: false, reason: "empty" };
   if (selectionDirty) return { ready: false, reason: "selection-pending" };
+  if (imagePending) return { ready: false, reason: "image-pending" };
   if (layoutPending) return { ready: false, reason: "layout-pending" };
   if (overflowCount > 0) return { ready: false, reason: "overflow" };
   return { ready: true, reason: "ready" };
