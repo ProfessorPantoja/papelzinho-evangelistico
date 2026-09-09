@@ -96,6 +96,15 @@
   flex: 0 0 auto;
 }
 
+.tract-logo {
+  display: block;
+  width: 26mm;
+  height: 10mm;
+  max-width: 100%;
+  object-fit: contain;
+  flex: 0 0 10mm;
+}
+
 /* Rodapé opcional (igreja/contato): discreto, separado por um filete. */
 .tract-footer {
   margin: 0;

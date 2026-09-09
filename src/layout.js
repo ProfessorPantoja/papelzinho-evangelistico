@@ -58,7 +58,7 @@ export function capacityPerPage(sizeId) {
 }
 
 /** Cria a estrutura DOM de um papelzinho (sem ainda medir/ajustar fonte). */
-function buildTract(verse, size, fontScale, template, footer) {
+function buildTract(verse, size, fontScale, template, footer, logo) {
   const tract = document.createElement("div");
   tract.className = "tract crop-" + CROP_STYLE;
   tract.style.width = `${size.wMm}mm`;
@@ -82,6 +82,14 @@ function buildTract(verse, size, fontScale, template, footer) {
 
   content.appendChild(text);
   content.appendChild(ref);
+
+  if (logo) {
+    const image = document.createElement("img");
+    image.className = "tract-logo";
+    image.alt = "Logo da igreja";
+    image.src = logo;
+    content.appendChild(image);
+  }
 
   // Rodapé opcional (igreja/contato) na base do papelzinho.
   if (footer) {
@@ -155,7 +163,7 @@ function autofitTract(tract) {
  * @param {HTMLElement} containerEl
  * @param {{verses: Array, sizeId: string, template: object, fontScale?: number, footer?: string}} opts
  */
-export function renderSheet(containerEl, { verses, sizeId, template, templates = [], fontScale = 1, footer = "" } = {}) {
+export function renderSheet(containerEl, { verses, sizeId, template, templates = [], fontScale = 1, footer = "", logo = "" } = {}) {
   if (!containerEl) return;
   containerEl.innerHTML = "";
 
@@ -184,7 +192,7 @@ export function renderSheet(containerEl, { verses, sizeId, template, templates =
 
     for (let i = 0; i < perPage && idx < list.length; i++, idx++) {
       const art = templates.length ? templates[idx % templates.length] : template;
-      const tract = buildTract(list[idx], size, fontScale, art, footer);
+      const tract = buildTract(list[idx], size, fontScale, art, footer, logo);
       grid.appendChild(tract);
       tracts.push(tract);
     }

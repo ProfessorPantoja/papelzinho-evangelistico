@@ -59,6 +59,9 @@ const state = {
   layoutVersion: 0,
   imagePending: false,
   imageLoadToken: 0,
+  churchLogo: "",
+  logoPending: false,
+  logoLoadToken: 0,
 };
 
 // Largura de uma folha A4 em px CSS (210mm a 96dpi ≈ 793.7px).
@@ -88,6 +91,19 @@ function fillSizes() {
     sel.appendChild(o);
   }
   sel.value = DEFAULT_SIZE_ID;
+}
+
+function updateImageSizeHint() {
+  const size = TRACT_SIZES.find((item) => item.id === $("#size").value);
+  if (!size) return;
+  const gcd = (a, b) => b ? gcd(b, a % b) : a;
+  const w = Math.round(size.wMm * 10);
+  const h = Math.round(size.hMm * 10);
+  const divisor = gcd(w, h);
+  const widthPx = Math.ceil(size.wMm * 300 / 25.4);
+  const heightPx = Math.ceil(size.hMm * 300 / 25.4);
+  $("#bgImageSizeHint").textContent =
+    `Para ${size.label}: ${size.wMm} × ${size.hMm} mm · proporção ${w / divisor}:${h / divisor} (largura:altura). Sugestão a 300 dpi: ${widthPx} × ${heightPx} px ou maior na mesma proporção.`;
 }
 
 function fillTemplates() {
@@ -287,9 +303,9 @@ function cancelBackgroundUpload() {
   setImagePending(false);
 }
 
-function setImageError(message = "") {
-  const input = $("#bgImage");
-  const error = $("#bgImageError");
+function setImageError(message = "", field = "bgImage") {
+  const input = $(`#${field}`);
+  const error = $(`#${field}Error`);
   error.textContent = message;
   error.hidden = !message;
   input.setAttribute("aria-invalid", message ? "true" : "false");
@@ -363,6 +379,46 @@ async function applyBackgroundImage(file) {
     setImageError(error.message || "Não foi possível usar esta imagem.");
   } finally {
     if (token === state.imageLoadToken) setImagePending(false);
+  }
+}
+
+function setLogoPending(pending) {
+  state.logoPending = pending;
+  $("#churchLogo").setAttribute("aria-busy", String(pending));
+  syncPrintAvailability();
+  updatePreviewStatus();
+}
+
+async function applyChurchLogo(file) {
+  const token = ++state.logoLoadToken;
+  setImageError("", "churchLogo");
+  setLogoPending(true);
+  $("#churchLogoClear").hidden = false;
+  try {
+    const metadataError = validateImageFile(file);
+    if (metadataError) throw new Error(metadataError);
+    const { width, height } = await readImageDimensions(file);
+    if (token !== state.logoLoadToken) return;
+    const dimensionError = validateImageDimensions(width, height);
+    if (dimensionError) throw new Error(dimensionError);
+    const dataUrl = await readAsDataUrl(file);
+    const image = new Image();
+    image.src = dataUrl;
+    await image.decode();
+    if (token !== state.logoLoadToken) return;
+    state.churchLogo = dataUrl;
+    $("#churchLogoPreview").src = dataUrl;
+    $("#churchLogoPreview").hidden = false;
+    renderCurrentSelection();
+  } catch (error) {
+    if (token !== state.logoLoadToken) return;
+    $("#churchLogo").value = "";
+    setImageError(error.message || "Não foi possível usar este logo.", "churchLogo");
+  } finally {
+    if (token === state.logoLoadToken) {
+      setLogoPending(false);
+      $("#churchLogoClear").hidden = !state.churchLogo;
+    }
   }
 }
 
@@ -667,11 +723,11 @@ function syncPrintAvailability() {
     hasItems: state.currentVerses.length > 0,
     selectionDirty: state.selectionDirty,
     layoutPending: state.layoutPending,
-    imagePending: state.imagePending,
+    imagePending: state.imagePending || state.logoPending,
     overflowCount: state.overflowCount,
   });
   button.disabled = !readiness.ready;
-  button.setAttribute("aria-busy", String(state.layoutPending || state.imagePending));
+  button.setAttribute("aria-busy", String(state.layoutPending || state.imagePending || state.logoPending));
   button.dataset.disabledReason = readiness.reason;
   document.documentElement.dataset.printReadiness = readiness.reason;
   return readiness;
@@ -701,8 +757,8 @@ function measureLayoutStatus() {
 
 function updatePreviewStatus() {
   const { overflowCount } = state;
-  if (state.imagePending) {
-    setPreviewStatus("Carregando a imagem de fundo. Aguarde antes de imprimir…", "checking");
+  if (state.imagePending || state.logoPending) {
+    setPreviewStatus("Carregando as imagens. Aguarde antes de imprimir…", "checking");
   } else if (state.layoutPending) {
     setPreviewStatus("Conferindo a diagramação…", "checking");
   } else if (overflowCount) {
@@ -734,6 +790,7 @@ function scheduleLayoutPreflight() {
 
 function renderCurrentSelection() {
   state.layoutVersion++;
+  updateImageSizeHint();
   state.currentVerses = arrangeVerses(state.appliedSelection.verses, {
     ...state.appliedSelection,
     perPage: capacityPerPage($("#size").value),
@@ -757,7 +814,7 @@ function renderCurrentSelection() {
     $("#footerText").value
   );
   try {
-    renderSheet(sheetContainer, { verses, sizeId, templates, fontScale, footer });
+    renderSheet(sheetContainer, { verses, sizeId, templates, fontScale, footer, logo: state.churchLogo });
     scheduleLayoutPreflight();
   } catch (e) {
     console.error("Erro no layout:", e);
@@ -877,6 +934,22 @@ function init() {
   $("#fillPage").addEventListener("change", markSelectionDirty);
   $("#defaultFooter").addEventListener("change", renderCurrentSelection);
   $("#footerText").addEventListener("input", renderCurrentSelection);
+
+  $("#churchLogo").addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if (file) applyChurchLogo(file);
+  });
+  $("#churchLogoClear").addEventListener("click", () => {
+    state.logoLoadToken++;
+    state.churchLogo = "";
+    $("#churchLogo").value = "";
+    $("#churchLogoPreview").hidden = true;
+    $("#churchLogoPreview").removeAttribute("src");
+    $("#churchLogoClear").hidden = true;
+    setImageError("", "churchLogo");
+    setLogoPending(false);
+    renderCurrentSelection();
+  });
 
   // --- Imagem de fundo própria ---
   $("#bgImage").addEventListener("change", async (e) => {

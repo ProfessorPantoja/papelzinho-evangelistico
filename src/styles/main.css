@@ -303,6 +303,7 @@ input[type="file"]::file-selector-button {
   font: inherit;
   font-size: 12px;
 }
+.church-logo-preview { display: block; width: 96px; height: 48px; margin: 8px 0; padding: 5px; object-fit: contain; background: #fff; border-radius: 6px; }
 .hint, .footnote { color: var(--sidebar-muted); font-size: 11px; }
 .hint { display: block; margin-top: 5px; line-height: 1.45; }
 .footnote { margin: 15px 0 0; text-align: center; }

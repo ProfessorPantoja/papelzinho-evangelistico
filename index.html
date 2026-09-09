@@ -111,8 +111,10 @@
       </div>
       <div class="field">
         <label for="bgImage">Ou use sua própria imagem de fundo</label>
-        <input type="file" id="bgImage" accept="image/*" aria-describedby="bgImageHint bgImageError" />
+        <input type="file" id="bgImage" accept="image/*" aria-describedby="bgImageHint bgImageSizeHint bgImageError" />
         <small class="hint" id="bgImageHint">PNG, JPG, WebP ou outra imagem de até 10 MB e 32 megapixels.</small>
+        <small class="hint" id="bgImageSizeHint"></small>
+        <small class="hint">Use a mesma proporção do papelzinho para evitar cortes nas bordas. Deixe o centro livre para o texto. Imagens enviadas precisam ser escolhidas novamente ao reabrir o app.</small>
         <p class="field-error" id="bgImageError" role="alert" aria-live="assertive" hidden></p>
         <button id="bgImageClear" class="secondary compact" type="button" hidden>Remover imagem</button>
       </div>
@@ -124,6 +126,14 @@
 
     <section class="panel" aria-labelledby="step-personalize">
       <h2 id="step-personalize"><span>04</span> Personalização <small>opcional</small></h2>
+      <div class="field">
+        <label for="churchLogo">Logo da igreja (opcional)</label>
+        <input type="file" id="churchLogo" accept="image/*" aria-describedby="churchLogoHint churchLogoError" />
+        <small class="hint" id="churchLogoHint">Prefira PNG transparente, com pelo menos 320 px de largura. O logo aparece acima do rodapé, sem recortar. Até 10 MB; escolha novamente ao reabrir o app.</small>
+        <img id="churchLogoPreview" class="church-logo-preview" alt="Logo escolhido para os papeizinhos" hidden />
+        <p class="field-error" id="churchLogoError" role="alert" hidden></p>
+        <button id="churchLogoClear" class="secondary compact" type="button" hidden>Remover logo</button>
+      </div>
       <div class="field">
         <label class="check footer-default-check">
           <input type="checkbox" id="defaultFooter" aria-describedby="defaultFooterText" checked />
