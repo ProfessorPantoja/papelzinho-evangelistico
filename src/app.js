@@ -1,6 +1,7 @@
 // app.js — Integrador (NÃO é de nenhum agente de módulo).
 // Liga os controles da UI aos três módulos via os contratos de CONTRACTS.md.
 import { listThemes, VERSES } from "./data/verses.js";
+import { arrangeVerses } from "./pagination.js";
 import {
   getRandomVerses,
   searchVerses,
@@ -48,6 +49,7 @@ const state = {
   zoom: 1, // fator de zoom do preview (1 = 100%)
   fitZoom: true,
   currentVerses: [], // Mantém a seleção estável durante ajustes visuais.
+  appliedSelection: { verses: [], autoFill: false, fillPage: false },
   selectionDirty: false,
   overflowCount: 0,
   layoutPending: false,
@@ -376,23 +378,13 @@ function renderPicked() {
 
 // --- Coletar versículos conforme o modo --------------------------------------
 
-/** Repete ciclicamente a lista até fechar a última folha A4 (múltiplo de perPage). */
-function cycleToFillPage(list) {
-  if (!list.length) return list;
-  const perPage = capacityPerPage($("#size").value);
-  const target = Math.ceil(list.length / perPage) * perPage;
-  const out = [];
-  for (let i = 0; i < target; i++) out.push(list[i % list.length]);
-  return out;
-}
-
 function collectVerses() {
   const theme = $("#theme").value || undefined;
   const count = clampCount($("#count").value); // 0 = auto
-  // Quando "auto" (0), preenche exatamente UMA folha A4 do tamanho escolhido.
-  const wanted = count > 0 ? count : capacityPerPage($("#size").value);
+  // Reserva uma seleção estável para qualquer tamanho no modo automático.
+  // Só a capacidade do tamanho atual será exibida; mudar o tamanho não ressorteia.
+  const wanted = count > 0 ? count : Math.max(...TRACT_SIZES.map((size) => capacityPerPage(size.id)));
   const sameVerse = $("#sameVerse").checked;
-  const fillPage = $("#fillPage").checked;
 
   try {
     switch (state.mode) {
@@ -409,12 +401,10 @@ function collectVerses() {
           : getRandomVerses(wanted, opts);
       }
       case "manual": {
-        const picked = state.picked.slice();
-        return fillPage ? cycleToFillPage(picked) : picked;
+        return state.picked.slice();
       }
       case "paste": {
-        const pasted = parsePastedText($("#pasteText").value);
-        return fillPage ? cycleToFillPage(pasted) : pasted;
+        return parsePastedText($("#pasteText").value);
       }
       default:
         return [];
@@ -568,7 +558,12 @@ function markSelectionDirty() {
 }
 
 function refreshSelection() {
-  state.currentVerses = collectVerses();
+  const randomMode = ["random", "generate"].includes(state.mode);
+  state.appliedSelection = {
+    verses: collectVerses(),
+    autoFill: randomMode && clampCount($("#count").value) === 0,
+    fillPage: !randomMode && $("#fillPage").checked,
+  };
   state.selectionDirty = false;
   updateGenerateLabel();
   renderCurrentSelection();
@@ -640,6 +635,10 @@ function scheduleLayoutPreflight() {
 }
 
 function renderCurrentSelection() {
+  state.currentVerses = arrangeVerses(state.appliedSelection.verses, {
+    ...state.appliedSelection,
+    perPage: capacityPerPage($("#size").value),
+  });
   const verses = state.currentVerses;
   updateSheetInfo(verses.length);
   if (!verses.length) {
