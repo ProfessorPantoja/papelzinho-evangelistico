@@ -13,6 +13,7 @@ export function initVerseLibrary({ getPicked, toggleVerse, usePicked }) {
   const search = dialog.querySelector("#librarySearch");
   const book = dialog.querySelector("#libraryBook");
   const theme = dialog.querySelector("#libraryTheme");
+  const sort = dialog.querySelector("#librarySort");
   const selectedOnly = dialog.querySelector("#librarySelectedOnly");
   const grid = dialog.querySelector("#libraryCards");
   const summary = dialog.querySelector("#librarySummary");
@@ -31,6 +32,9 @@ export function initVerseLibrary({ getPicked, toggleVerse, usePicked }) {
       (!theme.value || verse.themes.includes(theme.value)) &&
       (!selectedOnly.checked || picked.has(verse.id))
     );
+    // Ordena só a lista de consulta; a sequência dos escolhidos não muda.
+    if (sort.value === "longest") results.sort((a, b) => b.text.length - a.text.length);
+    if (sort.value === "shortest") results.sort((a, b) => a.text.length - b.text.length);
     summary.textContent = `${results.length} de ${VERSES.length} trechos · ${picked.size} escolhidos`;
     useButton.textContent = `Usar ${picked.size} ${picked.size === 1 ? "escolhido" : "escolhidos"} na folha`;
     useButton.disabled = picked.size === 0;
@@ -46,7 +50,7 @@ export function initVerseLibrary({ getPicked, toggleVerse, usePicked }) {
       text.textContent = verse.text;
       const tags = document.createElement("p");
       tags.className = "library-tags";
-      tags.textContent = verse.themes.join(" · ");
+      tags.textContent = `${verse.text.length} caracteres · ${verse.themes.join(" · ")}`;
       card.append(heading, text, tags);
       if (verse.context) {
         const context = document.createElement("p");
@@ -97,10 +101,11 @@ export function initVerseLibrary({ getPicked, toggleVerse, usePicked }) {
   });
   dialog.querySelector("#libraryClose").addEventListener("click", () => dialog.close());
   search.addEventListener("input", () => render());
-  for (const control of [book, theme, selectedOnly]) control.addEventListener("change", () => render());
+  for (const control of [book, theme, sort, selectedOnly]) control.addEventListener("change", () => render());
   dialog.querySelector("#libraryReset").addEventListener("click", () => {
     search.value = book.value = theme.value = "";
     selectedOnly.checked = false;
+    sort.value = "default";
     render();
     search.focus();
   });

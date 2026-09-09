@@ -1,5 +1,17 @@
 # 📖 Papeizinhos evangelísticos
 
+## Instruções de trabalho neste projeto
+
+- **SINO obrigatório ao concluir uma rodada de trabalho:** executar
+  `bash /home/pantoja/.codex/skills/sino/scripts/task-done.sh` como última ação antes
+  da resposta final. Confirmar o toque somente se o script terminar com sucesso;
+  se falhar, informar a falha. Não substituir a execução por um emoji.
+- Registrar as melhorias em commits reversíveis e informar o estado do Git.
+- A validação visual e de impressão fica com o usuário. Não executar automação de
+  navegador, testes demorados ou ciclos de polimento sem pedido explícito.
+
+Estas instruções também estão em [AGENTS.md](AGENTS.md), para as próximas rodadas.
+
 Ferramenta web para montar folhas A4 cheias de **papeizinhos evangelísticos** (cartões com versículos
 da Bíblia, versão **Almeida Corrigida Fiel — ACF**), prontos para imprimir e recortar.
 
