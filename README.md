@@ -21,9 +21,13 @@ python3 -m http.server 8000
 5. Clique em **Imprimir / PDF**, siga a conferência final e salve como PDF em tamanho A4.
 
 A seleção de versículos permanece estável enquanto você troca arte, tamanho, fonte e rodapé.
-A impressão é bloqueada se houver alterações pendentes ou algum texto cortado.
+Ao trocar o tamanho, o modo automático continua preenchendo uma folha, e “Completar a folha
+repetindo” recalcula as cópias a partir dos textos escolhidos, sem novo sorteio.
+O botão de impressão aguarda o carregamento da imagem e a conferência da diagramação;
+também fica bloqueado se houver alterações pendentes ou algum texto cortado.
 
 Suas preferências ficam salvas no navegador (localStorage) e voltam na próxima visita.
+Valores salvos inválidos são ignorados ou limitados ao intervalo aceito pelo editor.
 
 ## Funcionalidades
 - **3 modos de seleção**: aleatório com 17 temas, busca manual e colar texto.
@@ -38,6 +42,8 @@ Suas preferências ficam salvas no navegador (localStorage) e voltam na próxima
 
 ## Estrutura (módulos independentes)
 - `src/data/` + `src/selection.js` — banco de versículos ACF e lógica de seleção.
+- `src/pagination.js` — preenchimento das folhas a partir da seleção aplicada.
+- `src/settings.js` — validação das preferências restauradas do navegador.
 - `src/layout.js` — diagramação da folha A4 (grade, marcas de corte, auto-fit, rodapé).
 - `src/templates/` — artes de fundo (CSS/SVG).
 - `index.html` / `src/app.js` — interface, zoom, persistência e integração.
@@ -48,7 +54,13 @@ Veja `PRD.md` (requisitos) e `CONTRACTS.md` (contratos de API entre módulos).
 
 ```bash
 node tests/smoke.mjs
+node tests/pagination.mjs
+node tests/settings.mjs
 ```
 
-O smoke test cobre limites, paginação, detecção de overflow, prontidão de impressão e validação
-de imagens sem adicionar dependências ao projeto.
+As verificações rápidas cobrem limites, preenchimento ao trocar de tamanho, seleção estável,
+preferências inválidas, detecção de overflow, prontidão de impressão e validação de imagens,
+sem adicionar dependências ao projeto. A conferência visual e de impressão é manual.
+
+Veja o [relatório de melhorias de 09/09/2026](docs/relatorio-melhorias-2026-09-09.md)
+para os commits e as instruções de reversão.
