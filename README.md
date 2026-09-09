@@ -12,6 +12,9 @@
 
 Estas instruções também estão em [AGENTS.md](AGENTS.md), para as próximas rodadas.
 
+**Melhorias pausadas:** os pedidos para a [próxima iteração](docs/proxima-iteracao.md)
+estão registrados. Retomar somente quando o usuário solicitar.
+
 Ferramenta web para montar folhas A4 cheias de **papeizinhos evangelísticos** (cartões com versículos
 da Bíblia, versão **Almeida Corrigida Fiel — ACF**), prontos para imprimir e recortar.
 
