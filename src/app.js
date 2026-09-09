@@ -2,6 +2,7 @@
 // Liga os controles da UI aos três módulos via os contratos de CONTRACTS.md.
 import { listThemes, VERSES } from "./data/verses.js";
 import { arrangeVerses } from "./pagination.js";
+import { sanitizeSettings } from "./settings.js";
 import {
   getRandomVerses,
   searchVerses,
@@ -451,32 +452,32 @@ function saveSettings() {
 function restoreSettings() {
   let data;
   try {
-    data = JSON.parse(localStorage.getItem(SETTINGS_KEY));
+    data = sanitizeSettings(JSON.parse(localStorage.getItem(SETTINGS_KEY)), {
+      themes: listThemes(),
+      sizes: TRACT_SIZES.map((size) => size.id),
+      templates: TEMPLATES.map((template) => template.id),
+      verseIds: VERSES.map((verse) => verse.id),
+    });
   } catch (e) {
     return;
   }
-  if (!data || typeof data !== "object") return;
-
   const setVal = (sel, val) => {
     const el = $(sel);
     if (val !== undefined && val !== null && el) el.value = val;
   };
   if (data.mode) {
-    // Versões antigas salvavam "generate"; agora o modo aleatório + tema
-    // oferece a mesma seleção com uma etapa a menos.
-    const restoredMode = data.mode === "generate" ? "random" : data.mode;
-    const radio = document.querySelector(`input[name="mode"][value="${restoredMode}"]`);
+    const radio = [...document.querySelectorAll('input[name="mode"]')]
+      .find((input) => input.value === data.mode);
     if (radio) radio.checked = true;
   }
   setVal("#theme", data.theme);
   setVal("#count", data.count);
   if (typeof data.sameVerse === "boolean") $("#sameVerse").checked = data.sameVerse;
   if (typeof data.fillPage === "boolean") $("#fillPage").checked = data.fillPage;
-  // selects só aceitam valores que existem nas opções; inválidos caem no atual.
-  if (data.size && TRACT_SIZES.some((s) => s.id === data.size)) setVal("#size", data.size);
+  setVal("#size", data.size);
   setVal("#fontScale", data.fontScale);
   $("#fontScaleVal").textContent = Math.round(($("#fontScale").value || 1) * 100) + "%";
-  if (data.template && TEMPLATES.some((t) => t.id === data.template)) setVal("#template", data.template);
+  setVal("#template", data.template);
   setVal("#overlay", data.overlay);
   $("#overlayVal").textContent = Math.round(($("#overlay").value || 0) * 100) + "%";
   if (typeof data.defaultFooter === "boolean") {
