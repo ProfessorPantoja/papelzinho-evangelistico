@@ -7,9 +7,11 @@
 - Após `git fetch origin`, a branch `claude/evangelical-tract-renderer-l3r3dq`
   estava 6 commits à frente da correspondente remota, sem commits remotos pendentes.
 - Ponto de partida local: `1f932fd`; ponta remota consultada: `7282c46`.
-- As melhorias estão na branch `codex/melhorias-editor-2026-09-09`.
-  A branch original continua no ponto de partida, preservando os seis commits anteriores.
-- Não foi realizado push. A consulta ao GitHub não publicou as mudanças locais.
+- As melhorias foram feitas na branch `codex/melhorias-editor-2026-09-09`.
+- Após autorização posterior do usuário, a branch principal
+  `claude/evangelical-tract-renderer-l3r3dq` recebeu as melhorias por fast-forward,
+  preservando todo o histórico. Ambas as branches foram enviadas ao GitHub.
+- O ponto anterior às melhorias continua acessível pelo commit `1f932fd`.
 
 ## Mudanças por commit
 
@@ -43,10 +45,11 @@ Para conferir manualmente:
 
 ## Como voltar
 
-Para experimentar a versão anterior, com a árvore limpa:
+Para experimentar a versão anterior, com a árvore limpa, consulte o commit de
+partida em modo de inspeção (HEAD destacado). A branch principal já contém as melhorias:
 
 ```bash
-git switch claude/evangelical-tract-renderer-l3r3dq
+git switch --detach 1f932fd
 ```
 
 Para retornar às melhorias:
