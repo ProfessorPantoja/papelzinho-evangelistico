@@ -155,7 +155,7 @@ function autofitTract(tract) {
  * @param {HTMLElement} containerEl
  * @param {{verses: Array, sizeId: string, template: object, fontScale?: number, footer?: string}} opts
  */
-export function renderSheet(containerEl, { verses, sizeId, template, fontScale = 1, footer = "" } = {}) {
+export function renderSheet(containerEl, { verses, sizeId, template, templates = [], fontScale = 1, footer = "" } = {}) {
   if (!containerEl) return;
   containerEl.innerHTML = "";
 
@@ -183,7 +183,8 @@ export function renderSheet(containerEl, { verses, sizeId, template, fontScale =
     grid.style.padding = `${A4.marginMm}mm`;
 
     for (let i = 0; i < perPage && idx < list.length; i++, idx++) {
-      const tract = buildTract(list[idx], size, fontScale, template, footer);
+      const art = templates.length ? templates[idx % templates.length] : template;
+      const tract = buildTract(list[idx], size, fontScale, art, footer);
       grid.appendChild(tract);
       tracts.push(tract);
     }

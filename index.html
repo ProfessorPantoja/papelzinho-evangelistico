@@ -102,7 +102,7 @@
         <button id="templateChooserButton" class="template-chooser-button" type="button" aria-haspopup="dialog" aria-controls="templateDialog" hidden>
           <span class="template-active-preview" id="selectedTemplatePreview" aria-hidden="true"></span>
           <span class="template-active-copy">
-            <small>Arte selecionada</small>
+            <small>Artes da folha</small>
             <strong id="selectedTemplateName">Liso (branco)</strong>
             <span>Ver os 22 modelos</span>
           </span>
@@ -176,15 +176,20 @@
         <div>
           <span class="eyebrow">Galeria de artes</span>
           <h2 id="templateDialogTitle">Escolha o fundo</h2>
-          <p id="templateDialogDescription">Use as setas para explorar. Clique ou pressione Enter para aplicar.</p>
+          <p id="templateDialogDescription">Use as setas para explorar. Clique ou pressione Enter para escolher.</p>
         </div>
         <button class="dialog-icon-close" type="submit" value="cancel" aria-label="Fechar galeria">
           <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" /></svg>
         </button>
       </header>
+      <div class="template-mix-controls">
+        <label><input type="checkbox" id="mixTemplates" /> Alternar várias artes na folha</label>
+        <small>Marque as artes desejadas. Elas se repetem na ordem escolhida, em todos os papeizinhos.</small>
+        <button type="button" id="shuffleTemplates" class="dialog-cancel" hidden>Embaralhar ordem das artes</button>
+      </div>
       <div id="templateGallery" class="template-gallery" role="radiogroup" aria-label="Modelos de arte de fundo"></div>
       <footer class="template-dialog-footer">
-        <span><strong id="galleryTemplateName">Liso (branco)</strong> selecionado</span>
+        <span id="galleryTemplateName" role="status">Liso (branco)</span>
         <button class="dialog-cancel" type="submit" value="done">Concluir</button>
       </footer>
     </form>

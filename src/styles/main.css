@@ -599,6 +599,10 @@ button.compact { min-height: 44px; margin-top: 7px; padding: 8px 11px; }
 }
 .dialog-icon-close:hover { border-color: #bbb2a4; background: #e9e3d8; }
 .dialog-icon-close svg { width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.template-mix-controls { display: grid; gap: 6px; padding: 12px 20px; color: #35413b; flex: 0 0 auto; border-bottom: 1px solid #d9d3c8; }
+.template-mix-controls label { display: flex; align-items: center; gap: 8px; min-height: 32px; color: #27332e; font-size: 13px; cursor: pointer; }
+.template-mix-controls small { font-size: 11px; line-height: 1.4; color: #59635e; }
+.template-mix-controls button { justify-self: start; padding: 7px 12px; border-color: #d6cfc1; background: #f4f0e8; color: #34413b; font-size: 12px; }
 .template-gallery {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

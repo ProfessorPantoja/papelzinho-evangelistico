@@ -47,6 +47,8 @@ const state = {
   mode: "random",
   picked: [], // Verse[] no modo manual
   customImage: null, // data URL da imagem de fundo enviada pelo usuário
+  selectedTemplateIds: [DEFAULT_TEMPLATE_ID],
+  mixTemplates: false,
   zoom: 1, // fator de zoom do preview (1 = 100%)
   fitZoom: true,
   currentVerses: [], // Mantém a seleção estável durante ajustes visuais.
@@ -99,13 +101,13 @@ function fillTemplates() {
   sel.value = DEFAULT_TEMPLATE_ID;
 }
 
-function resolveActiveTemplate() {
-  if ($("#template").value === "custom" && state.customImage) {
+function resolveActiveTemplate(id = state.selectedTemplateIds[0]) {
+  if (id === "custom" && state.customImage) {
     return makeImageTemplate(state.customImage, {
       overlay: parseFloat($("#overlay").value) || 0,
     });
   }
-  return getTemplate($("#template").value);
+  return getTemplate(id);
 }
 
 function renderTemplateThumbnail(container, template) {
@@ -130,27 +132,67 @@ function renderTemplateThumbnail(container, template) {
 
 function syncTemplateChooser() {
   const active = resolveActiveTemplate();
-  $("#selectedTemplateName").textContent = active.name;
-  $("#galleryTemplateName").textContent = active.name;
+  const count = state.selectedTemplateIds.length;
+  const names = state.selectedTemplateIds.map((id) => resolveActiveTemplate(id).name).join(" → ");
+  $("#selectedTemplateName").textContent = count > 1 ? `${count} artes alternadas` : active.name;
+  $("#selectedTemplateName").title = names;
+  $("#galleryTemplateName").textContent = names;
+  $("#mixTemplates").checked = state.mixTemplates;
+  $("#shuffleTemplates").hidden = count < 2;
+  $("#templateGallery").setAttribute("role", state.mixTemplates ? "group" : "radiogroup");
   $("#templateChooserButton").setAttribute(
     "aria-label",
-    `Escolher arte de fundo. Selecionada: ${active.name}`
+    `Escolher artes de fundo. Selecionadas: ${names}`
   );
   renderTemplateThumbnail($("#selectedTemplatePreview"), active);
 
   document.querySelectorAll(".template-option").forEach((button) => {
-    const selected = button.dataset.templateId === $("#template").value;
+    const selected = state.selectedTemplateIds.includes(button.dataset.templateId);
+    button.setAttribute("role", state.mixTemplates ? "checkbox" : "radio");
     button.setAttribute("aria-checked", selected ? "true" : "false");
-    button.tabIndex = selected ? 0 : -1;
+    button.tabIndex = state.mixTemplates || selected ? 0 : -1;
   });
 }
 
 function applyTemplateChoice(templateId, { close = false } = {}) {
-  const select = $("#template");
-  if (!TEMPLATES.some((template) => template.id === templateId)) return;
-  select.value = templateId;
-  select.dispatchEvent(new Event("change", { bubbles: true }));
-  if (close) $("#templateDialog").close();
+  if (!TEMPLATES.some((template) => template.id === templateId) && !(templateId === "custom" && state.customImage)) return;
+  if (state.mixTemplates) {
+    if (state.selectedTemplateIds.includes(templateId)) {
+      if (state.selectedTemplateIds.length === 1) {
+        $("#galleryTemplateName").textContent = "Mantenha pelo menos uma arte selecionada.";
+        return;
+      }
+      state.selectedTemplateIds = state.selectedTemplateIds.filter((id) => id !== templateId);
+    } else state.selectedTemplateIds.push(templateId);
+  } else state.selectedTemplateIds = [templateId];
+  cancelBackgroundUpload();
+  updateTemplateSelection();
+  if (close && !state.mixTemplates) $("#templateDialog").close();
+}
+
+function updateTemplateSelection() {
+  $("#template").value = state.selectedTemplateIds[0];
+  $("#overlayField").hidden = !state.selectedTemplateIds.includes("custom");
+  syncTemplateChooser();
+  renderCurrentSelection();
+}
+
+function createTemplateOption(template) {
+  const option = document.createElement("button");
+  option.type = "button";
+  option.className = "template-option";
+  option.dataset.templateId = template.id;
+  option.setAttribute("aria-label", template.name);
+  const thumb = document.createElement("span");
+  thumb.className = "template-thumb";
+  thumb.setAttribute("aria-hidden", "true");
+  renderTemplateThumbnail(thumb, template);
+  const label = document.createElement("span");
+  label.className = "template-option-label";
+  label.textContent = template.name;
+  option.append(thumb, label);
+  option.addEventListener("click", () => applyTemplateChoice(template.id, { close: true }));
+  return option;
 }
 
 function initTemplateChooser() {
@@ -162,26 +204,7 @@ function initTemplateChooser() {
 
   try {
     for (const template of TEMPLATES) {
-      const option = document.createElement("button");
-      option.type = "button";
-      option.className = "template-option";
-      option.dataset.templateId = template.id;
-      option.setAttribute("role", "radio");
-      option.setAttribute("aria-label", template.name);
-
-      const thumb = document.createElement("span");
-      thumb.className = "template-thumb";
-      thumb.setAttribute("aria-hidden", "true");
-      renderTemplateThumbnail(thumb, template);
-
-      const label = document.createElement("span");
-      label.className = "template-option-label";
-      label.textContent = template.name;
-      option.append(thumb, label);
-      option.addEventListener("click", () =>
-        applyTemplateChoice(template.id, { close: true })
-      );
-      fragment.appendChild(option);
+      fragment.appendChild(createTemplateOption(template));
     }
   } catch (error) {
     console.warn("Galeria de templates indisponível; usando o seletor padrão.", error);
@@ -204,7 +227,21 @@ function initTemplateChooser() {
     event.preventDefault();
     const next = buttons[nextIndex];
     next.focus();
-    applyTemplateChoice(next.dataset.templateId);
+    if (!state.mixTemplates) applyTemplateChoice(next.dataset.templateId);
+  });
+
+  $("#mixTemplates").addEventListener("change", (event) => {
+    state.mixTemplates = event.target.checked;
+    if (!state.mixTemplates) state.selectedTemplateIds = state.selectedTemplateIds.slice(0, 1);
+    cancelBackgroundUpload();
+    updateTemplateSelection();
+  });
+  $("#shuffleTemplates").addEventListener("click", () => {
+    for (let i = state.selectedTemplateIds.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [state.selectedTemplateIds[i], state.selectedTemplateIds[j]] = [state.selectedTemplateIds[j], state.selectedTemplateIds[i]];
+    }
+    updateTemplateSelection();
   });
 
   trigger.addEventListener("click", () => {
@@ -232,11 +269,22 @@ function ensureCustomOption() {
     o.textContent = "Imagem própria";
     sel.appendChild(o);
   }
+  $("#templateGallery").querySelector('[data-template-id="custom"]')?.remove();
+  const custom = resolveActiveTemplate("custom");
+  $("#templateGallery").appendChild(createTemplateOption({ ...custom, id: "custom" }));
 }
 
 function removeCustomOption() {
   const o = $("#template").querySelector('option[value="custom"]');
   if (o) o.remove();
+  $("#templateGallery").querySelector('[data-template-id="custom"]')?.remove();
+}
+
+function cancelBackgroundUpload() {
+  if (!state.imagePending) return;
+  state.imageLoadToken++;
+  $("#bgImage").value = "";
+  setImagePending(false);
 }
 
 function setImageError(message = "") {
@@ -304,11 +352,11 @@ async function applyBackgroundImage(file) {
 
     state.customImage = dataUrl;
     ensureCustomOption();
-    $("#template").value = "custom";
+    state.selectedTemplateIds = state.mixTemplates
+      ? [...state.selectedTemplateIds.filter((id) => id !== "custom"), "custom"]
+      : ["custom"];
     $("#bgImageClear").hidden = false;
-    $("#overlayField").hidden = false;
-    syncTemplateChooser();
-    renderCurrentSelection();
+    updateTemplateSelection();
   } catch (error) {
     if (token !== state.imageLoadToken) return;
     input.value = "";
@@ -469,6 +517,8 @@ function saveSettings() {
       // imagem própria não é persistida (data URL pode estourar a cota);
       // se o template ativo é "custom", guarda o padrão no lugar.
       template: $("#template").value === "custom" ? DEFAULT_TEMPLATE_ID : $("#template").value,
+      templateIds: state.selectedTemplateIds.filter((id) => id !== "custom"),
+      mixTemplates: state.mixTemplates,
       overlay: $("#overlay").value,
       footer: $("#footerText").value,
       pasteText: $("#pasteText").value,
@@ -509,6 +559,10 @@ function restoreSettings() {
   setVal("#fontScale", data.fontScale);
   $("#fontScaleVal").textContent = Math.round(($("#fontScale").value || 1) * 100) + "%";
   setVal("#template", data.template);
+  state.selectedTemplateIds = data.templateIds?.length ? data.templateIds : [$("#template").value];
+  state.mixTemplates = data.mixTemplates ?? (state.selectedTemplateIds.length > 1);
+  if (!state.mixTemplates) state.selectedTemplateIds = state.selectedTemplateIds.slice(0, 1);
+  $("#template").value = state.selectedTemplateIds[0];
   setVal("#overlay", data.overlay);
   $("#overlayVal").textContent = Math.round(($("#overlay").value || 0) * 100) + "%";
   // O rodapé começa ativo em cada visita; pode ser desmarcado nesta sessão.
@@ -697,21 +751,13 @@ function renderCurrentSelection() {
   }
   const sizeId = $("#size").value;
   const fontScale = parseFloat($("#fontScale").value) || 1;
-  // Se o usuário enviou uma imagem e o template "custom" está escolhido,
-  // monta o template de imagem com o clareador; senão usa um template normal.
-  let template;
-  if ($("#template").value === "custom" && state.customImage) {
-    const overlay = parseFloat($("#overlay").value) || 0;
-    template = makeImageTemplate(state.customImage, { overlay });
-  } else {
-    template = getTemplate($("#template").value);
-  }
+  const templates = state.selectedTemplateIds.map((id) => resolveActiveTemplate(id));
   const footer = composeFooter(
     $("#defaultFooter").checked,
     $("#footerText").value
   );
   try {
-    renderSheet(sheetContainer, { verses, sizeId, template, fontScale, footer });
+    renderSheet(sheetContainer, { verses, sizeId, templates, fontScale, footer });
     scheduleLayoutPreflight();
   } catch (e) {
     console.error("Erro no layout:", e);
@@ -845,29 +891,24 @@ function init() {
     setImagePending(false);
     setImageError("");
     removeCustomOption();
-    $("#template").value = DEFAULT_TEMPLATE_ID;
+    state.selectedTemplateIds = state.selectedTemplateIds.filter((id) => id !== "custom");
+    if (!state.selectedTemplateIds.length) state.selectedTemplateIds = [DEFAULT_TEMPLATE_ID];
     $("#bgImageClear").hidden = true;
     $("#overlayField").hidden = true;
-    syncTemplateChooser();
-    renderCurrentSelection();
+    updateTemplateSelection();
   });
   $("#overlay").addEventListener("input", (e) => {
     $("#overlayVal").textContent = Math.round(e.target.value * 100) + "%";
+    const customThumb = $("#templateGallery").querySelector('[data-template-id="custom"] .template-thumb');
+    if (customThumb) renderTemplateThumbnail(customThumb, resolveActiveTemplate("custom"));
     syncTemplateChooser();
     renderCurrentSelection();
   });
   $("#template").addEventListener("change", () => {
-    // A escolha mais recente prevalece sobre um upload ainda em andamento.
-    if (state.imagePending) {
-      state.imageLoadToken++;
-      $("#bgImage").value = "";
-      setImagePending(false);
-    }
-    $("#overlayField").hidden = !(
-      $("#template").value === "custom" && state.customImage
-    );
-    syncTemplateChooser();
-    renderCurrentSelection();
+    cancelBackgroundUpload();
+    state.selectedTemplateIds = [$("#template").value];
+    state.mixTemplates = false;
+    updateTemplateSelection();
   });
 
   $("#btnGenerate").addEventListener("click", refreshSelection);
