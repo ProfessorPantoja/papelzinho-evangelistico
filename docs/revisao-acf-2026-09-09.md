@@ -13,6 +13,8 @@ Foram acrescentados 17 trechos, resultando em **129 registros**. Alguns registro
 dois versículos consecutivos. Os IDs antigos foram mantidos para preservar seleções salvas.
 Efésios 2:4 foi ampliado para 2:4-5 e Romanos 8:38 para 8:38-39, completando as frases.
 Gálatas 5:22 foi confirmado como estava na edição consultada.
+Após as alterações, a comparação textual final confirmou os 129 registros contra
+suas referências no conteúdo consultado, incluindo os intervalos ampliados.
 
 ## Fontes e método
 
@@ -178,3 +180,9 @@ frequentemente lidos fora do contexto, receberam notas no painel. As notas não 
 A conferência desta rodada abrangeu os textos bíblicos e suas referências. Não foram
 executados navegador automatizado, testes visuais ou impressão física. O painel e a
 legibilidade dos trechos mais longos ficam para a avaliação manual do usuário.
+
+## Conferência manual do painel
+
+- Abrir o painel, buscar “João” e combinar os filtros de livro e tema.
+- Escolher/remover trechos, ativar “Só escolhidos” e usar a seleção na folha.
+- Conferir a leitura dos trechos longos na prévia e no PDF antes da impressão.

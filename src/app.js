@@ -3,6 +3,7 @@
 import { listThemes, VERSES } from "./data/verses.js";
 import { arrangeVerses } from "./pagination.js";
 import { sanitizeSettings } from "./settings.js";
+import { initVerseLibrary } from "./verse-library.js";
 import {
   getRandomVerses,
   searchVerses,
@@ -908,6 +909,23 @@ function init() {
   applyModeVisibility();
   renderPicked();
   initTemplateChooser();
+  initVerseLibrary({
+    getPicked: () => state.picked,
+    toggleVerse: (verse) => {
+      const index = state.picked.findIndex((item) => item.id === verse.id);
+      if (index < 0) state.picked.push(verse);
+      else state.picked.splice(index, 1);
+      renderPicked();
+      renderSearch({ preserveScroll: true });
+      if (state.mode === "manual") refreshSelection();
+      else saveSettings();
+    },
+    usePicked: () => {
+      document.querySelector('input[name="mode"][value="manual"]').checked = true;
+      applyModeVisibility();
+      refreshSelection();
+    },
+  });
 
   document.querySelectorAll('input[name="mode"]').forEach((r) =>
     r.addEventListener("change", () => {

@@ -11,6 +11,7 @@
   <link rel="stylesheet" href="src/styles/layout.css" />
   <link rel="stylesheet" href="src/styles/templates.css" />
   <link rel="stylesheet" href="src/styles/print.css" />
+  <link rel="stylesheet" href="src/styles/verse-library.css" />
 </head>
 <body>
   <a class="skip-link" href="#preview">Pular para a prévia</a>
@@ -32,6 +33,7 @@
 
     <section class="panel" aria-labelledby="step-verses">
       <h2 id="step-verses"><span>01</span> Versículos</h2>
+      <button id="openVerseLibrary" class="secondary library-open" type="button" aria-haspopup="dialog" aria-controls="verseLibrary">Abrir painel de versículos</button>
       <div class="field">
         <fieldset class="mode-fieldset">
           <legend>Como escolher</legend>
@@ -229,6 +231,28 @@
         <button class="primary" id="confirmPrint" type="button">Abrir impressão</button>
       </div>
     </form>
+  </dialog>
+
+  <dialog id="verseLibrary" class="verse-library" aria-labelledby="libraryTitle" aria-describedby="libraryDescription">
+    <header class="library-header">
+      <div><span class="eyebrow">Leia · escolha · compartilhe</span><h2 id="libraryTitle">Painel de versículos</h2>
+      <p id="libraryDescription">Explore os textos ACF com calma. Os escolhidos ficam guardados para montar sua folha.</p></div>
+      <button id="libraryClose" type="button" class="library-light-button">Voltar ao editor</button>
+    </header>
+    <div class="library-filters">
+      <label>Buscar referência ou palavra<input id="librarySearch" type="search" placeholder="João, salvação, amor…" autocomplete="off" /></label>
+      <label>Livro<select id="libraryBook"><option value="">Todos os livros</option></select></label>
+      <label>Tema<select id="libraryTheme"><option value="">Todos os temas</option></select></label>
+      <label class="library-selected"><input id="librarySelectedOnly" type="checkbox" /> Só escolhidos</label>
+      <button id="libraryReset" type="button" class="library-light-button">Limpar filtros</button>
+    </div>
+    <p id="librarySummary" class="library-summary" role="status"></p>
+    <div id="libraryCards" class="library-cards" aria-label="Trechos bíblicos"></div>
+    <footer class="library-footer">
+      <small>Almeida Corrigida Fiel (ACF) · © 1994, 1995, 2007, 2011 SBTB / Trinitarian Bible Society.<br />As notas de contexto são orientações de leitura e não aparecem na impressão.
+      <a href="https://www.biblias.com.br/direitos-autorais" target="_blank" rel="noopener noreferrer">Condições de citação ↗</a></small>
+      <button id="libraryUse" type="button" class="primary">Usar escolhidos na folha</button>
+    </footer>
   </dialog>
 
   <script type="module" src="src/app.js"></script>

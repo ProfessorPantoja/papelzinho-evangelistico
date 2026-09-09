@@ -18,6 +18,7 @@ A app abre direto no navegador (`index.html`) e imprime via `Ctrl+P` (Salvar com
  * @property {string} ref     - referência exibida (ex.: "João 3:16")
  * @property {string} text    - texto do versículo (ACF)
  * @property {string[]} themes- temas (ex.: ["salvação","amor"])
+ * @property {string} [context] - nota editorial de contexto, somente no painel de leitura
  */
 ```
 

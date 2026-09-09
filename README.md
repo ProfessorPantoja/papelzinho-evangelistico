@@ -14,6 +14,9 @@ python3 -m http.server 8000
 ```
 
 1. Escolha os versículos (aleatório com tema opcional, seleção manual ou texto colado).
+   O botão **Abrir painel de versículos** abre uma tela ampla para ler o acervo inteiro,
+   filtrar por livro/tema/palavra e marcar textos. Use **Usar escolhidos na folha** para
+   retornar ao editor no modo manual. **Só escolhidos** facilita revisar sua seleção.
 2. Escolha o tamanho do papelzinho e a arte de fundo na galeria visual. Ative **Alternar várias
    artes na folha** para marcar mais de uma; **Embaralhar ordem das artes** muda a sequência.
 3. Ajuste os extras: mesmo versículo na folha toda, completar folha repetindo, logo e rodapé
@@ -41,7 +44,10 @@ quando a proporção é diferente. O logo usa uma área de até 26 × 10 mm, sem
 
 ## Funcionalidades
 - **3 modos de seleção**: aleatório com 17 temas, busca manual e colar texto.
-- **Banco curado**: 112 versículos evangelísticos na ACF.
+- **Banco curado**: 129 trechos ACF, incluindo referências com dois versículos consecutivos;
+  revisão do acervo anterior e 17 novos trechos em 09/09/2026.
+- **Painel de versículos** com leitura integral, filtros, seleção e links para o contexto
+  no site oficial da SBTB. As notas de leitura são editoriais e não são impressas.
 - **5 tamanhos otimizados** para máximo aproveitamento da folha A4 + auto-ajuste de fonte.
 - **Galeria acessível com 22 artes de fundo** em CSS/SVG (leves, imprimem nítido e gastam pouca
   tinta) + upload validado de imagem própria com clareador de legibilidade.
@@ -51,8 +57,9 @@ quando a proporção é diferente. O logo usa uma área de até 26 × 10 mm, sem
 - **Impressão fiel A4** via CSS Print (`@page size: A4`).
 
 ## Estrutura (módulos independentes)
-- `src/data/verses.js` + `src/selection.js` — 112 versículos ACF em uma lista JavaScript
-  exportada como `VERSES` (campos `id`, `ref`, `text`, `themes`) e lógica de seleção. Não há arquivo JSON separado.
+- `src/data/verses.js` + `src/selection.js` — 129 trechos ACF em uma lista JavaScript
+  exportada como `VERSES` (campos `id`, `ref`, `text`, `themes` e `context` opcional) e lógica de seleção. Não há arquivo JSON separado.
+- `src/verse-library.js` — painel de leitura e escolha, compartilhando a seleção do editor.
 - `src/pagination.js` — preenchimento das folhas a partir da seleção aplicada.
 - `src/settings.js` — validação das preferências restauradas do navegador.
 - `src/layout.js` — diagramação da folha A4 (grade, marcas de corte, auto-fit, rodapé).
@@ -78,3 +85,11 @@ para os commits e as instruções de reversão.
 
 Os [refinamentos de seleção, artes e identificação da igreja](docs/refinamentos-ux-2026-09-09.md)
 incluem um checklist curto para conferência manual. Essa rodada não teve execução de testes.
+
+Veja a [revisão individual ACF](docs/revisao-acf-2026-09-09.md) para as fontes, os 112 registros
+conferidos e os 17 novos trechos. A conferência textual utilizou o serviço do site oficial;
+a interface nova e a impressão ficam para avaliação manual.
+
+Texto bíblico: Almeida Corrigida Fiel (ACF), © 1994, 1995, 2007, 2011 Sociedade Bíblica
+Trinitariana do Brasil / Trinitarian Bible Society. Consulte as
+[condições de citação da SBTB](https://www.biblias.com.br/direitos-autorais).
