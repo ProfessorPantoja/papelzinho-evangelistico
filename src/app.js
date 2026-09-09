@@ -330,25 +330,33 @@ function applyModeVisibility() {
 }
 
 // --- Busca / seleção manual ---------------------------------------------------
-function renderSearch() {
+function renderSearch({ preserveScroll = false, focusIndex = null } = {}) {
   const q = $("#search").value.trim();
   const box = $("#searchResults");
+  const scrollTop = preserveScroll ? box.scrollTop : 0;
   box.innerHTML = "";
   $("#search").setAttribute("aria-expanded", q ? "true" : "false");
+  $("#searchSummary").textContent = "Busque e clique para adicionar. Os escolhidos saem dos resultados.";
   if (!q) return;
+  let matches = [];
   let results = [];
   try {
-    results = searchVerses(q).slice(0, 12);
+    matches = searchVerses(q);
+    const pickedIds = new Set(state.picked.map((verse) => verse.id));
+    results = matches.filter((verse) => !pickedIds.has(verse.id));
   } catch (e) {
     console.warn(e);
   }
   if (!results.length) {
     const empty = document.createElement("p");
     empty.className = "search-empty";
-    empty.textContent = "Nenhum versículo encontrado.";
+    empty.textContent = matches.length
+      ? "Todos os versículos desta busca já foram escolhidos."
+      : "Nenhum versículo encontrado. Tente outro livro ou palavra.";
     box.appendChild(empty);
   }
-  for (const v of results) {
+  $("#searchSummary").textContent = `${results.length} disponíveis nesta busca · clique para adicionar.`;
+  for (const [index, v] of results.entries()) {
     const result = document.createElement("button");
     result.type = "button";
     result.className = "result";
@@ -361,15 +369,25 @@ function renderSearch() {
     result.addEventListener("click", () => {
       if (!state.picked.find((p) => p.id === v.id)) state.picked.push(v);
       renderPicked();
+      renderSearch({ preserveScroll: true, focusIndex: index });
       refreshSelection();
     });
     box.appendChild(result);
+  }
+  box.scrollTop = scrollTop;
+  if (focusIndex !== null) {
+    const buttons = box.querySelectorAll(".result");
+    (buttons[Math.min(focusIndex, buttons.length - 1)] || $("#search")).focus({ preventScroll: true });
   }
 }
 
 function renderPicked() {
   const box = $("#picked");
   box.innerHTML = "";
+  const count = state.picked.length;
+  $("#pickedSummary").textContent = count
+    ? `${count} ${count === 1 ? "escolhido" : "escolhidos"} · use × para remover.`
+    : "Nenhum versículo escolhido.";
   state.picked.forEach((v, i) => {
     const chip = document.createElement("span");
     chip.className = "chip";
@@ -381,7 +399,10 @@ function renderPicked() {
     x.onclick = () => {
       state.picked.splice(i, 1);
       renderPicked();
+      renderSearch({ preserveScroll: true });
       refreshSelection();
+      const buttons = box.querySelectorAll("button");
+      (buttons[Math.min(i, buttons.length - 1)] || $("#search")).focus({ preventScroll: true });
     };
     chip.appendChild(x);
     box.appendChild(chip);
@@ -449,7 +470,6 @@ function saveSettings() {
       // se o template ativo é "custom", guarda o padrão no lugar.
       template: $("#template").value === "custom" ? DEFAULT_TEMPLATE_ID : $("#template").value,
       overlay: $("#overlay").value,
-      defaultFooter: $("#defaultFooter").checked,
       footer: $("#footerText").value,
       pasteText: $("#pasteText").value,
       pickedIds: state.picked.map((v) => v.id),
@@ -491,9 +511,7 @@ function restoreSettings() {
   setVal("#template", data.template);
   setVal("#overlay", data.overlay);
   $("#overlayVal").textContent = Math.round(($("#overlay").value || 0) * 100) + "%";
-  if (typeof data.defaultFooter === "boolean") {
-    $("#defaultFooter").checked = data.defaultFooter;
-  }
+  // O rodapé começa ativo em cada visita; pode ser desmarcado nesta sessão.
   setVal("#footerText", data.footer);
   setVal("#pasteText", data.pasteText);
   if (Array.isArray(data.pickedIds)) {

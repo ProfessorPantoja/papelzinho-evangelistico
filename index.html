@@ -51,7 +51,9 @@
       <div class="field mode-block" data-mode="manual">
         <label for="search">Buscar versículo</label>
         <input type="search" id="search" placeholder="ex.: João 3:16 ou amor" autocomplete="off" aria-controls="searchResults" aria-expanded="false" />
-        <div id="searchResults" class="search-results" aria-live="polite"></div>
+        <small id="searchSummary" class="hint" role="status">Busque e clique para adicionar. Os escolhidos saem dos resultados.</small>
+        <div id="searchResults" class="search-results"></div>
+        <small id="pickedSummary" class="hint" role="status">Nenhum versículo escolhido.</small>
         <div id="picked" class="picked" aria-label="Versículos escolhidos"></div>
       </div>
 
@@ -124,7 +126,7 @@
       <h2 id="step-personalize"><span>04</span> Personalização <small>opcional</small></h2>
       <div class="field">
         <label class="check footer-default-check">
-          <input type="checkbox" id="defaultFooter" aria-describedby="defaultFooterText" />
+          <input type="checkbox" id="defaultFooter" aria-describedby="defaultFooterText" checked />
           <span>
             <strong>Usar rodapé padrão</strong>
             <small id="defaultFooterText">IGREJA ADMPF - Descida do Metrô Eng. da Rainha - Ou visite uma igreja próxima.</small>
